@@ -16,6 +16,10 @@ class TypeTask(models.Model):
 
     def __str__(self) -> str:
         return f"{self.title}"
+    
+    class Meta:
+        verbose_name = "Тип задачи"
+        verbose_name_plural = "Типы задач"
 
 
 class EpicTask(models.Model):
@@ -24,6 +28,10 @@ class EpicTask(models.Model):
 
     def __str__(self) -> str:
         return f"{self.title}"
+
+    class Meta:
+        verbose_name = "Эпик задачи"
+        verbose_name_plural = "Эпики задач"
 
 
 class Task(models.Model):
@@ -46,3 +54,7 @@ class Task(models.Model):
 
     def __str__(self) -> str:
         return f"Задача {self.title} - {self.type_task.title}"
+
+    class Meta:
+        verbose_name = "Задача"
+        verbose_name_plural = "Задачи"
