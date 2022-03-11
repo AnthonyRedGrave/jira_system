@@ -6,7 +6,13 @@
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
-      <li class="nav-item">
+        <li v-for="line in menu" :key="line.title" class="nav-item">
+            <router-link v-on:click="setActive(line)" :class="line.class" to="/">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"></use></svg>
+                {{line.title}}
+            </router-link>
+        </li>
+      <!-- <li class="nav-item">
         <router-link class="nav-link active" to="/">
             <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"></use></svg>
             Home
@@ -35,7 +41,7 @@
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#people-circle"></use></svg>
           Customers
         </a>
-      </li>
+      </li> -->
     </ul>
     <hr>
     <div class="dropdown">
@@ -57,7 +63,54 @@
 <script>
 export default {
     name: 'Sidebar',
-
+    data(){
+        return {
+                menu: [
+                {
+                    title: "Home",
+                    active: false,
+                    class: "nav-link text-white",
+                    route: "/"
+                },
+                {
+                    title: "Dashboards",
+                    active: false,
+                    class: "nav-link text-white",
+                    route: "/dashboards"
+                },
+                {
+                    title: "Repositories",
+                    active: false,
+                    class: "nav-link text-white",
+                    route: "/repos"
+                },
+                {
+                    title: "Backlog",
+                    active: false,
+                    class: "nav-link text-white",
+                    route: "/backlog"
+                },
+                {
+                    title: "Roadmap",
+                    active: false,
+                    class: "nav-link text-white",
+                    route: "/roadmap"
+                },
+            ]
+        }
+    },
+    methods: {
+        setActive(line){
+            line.active = !line.active
+            if (line.active){
+                line.class = "nav-link active"
+            }
+            else{
+                line.class = "nav-link text-white"
+            }
+            console.log(this.menu)
+        }
+    },
 }
 </script>
 
