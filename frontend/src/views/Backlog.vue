@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    home
+  <div class="backlog-view">
+    Backlog
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import useSideBar from '@/components/composables/useSideBar'
 
 export default {
-  name: 'Home',
+  name: 'Backlog',
   setup(){
 
       const {menu, selectSideBarLine} = useSideBar()

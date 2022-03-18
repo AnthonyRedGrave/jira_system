@@ -1,15 +1,16 @@
 <template>
-  <div class="home">
-    home
+  <div class="dashboard-vue">
+      Dashboards
   </div>
 </template>
 
 <script>
 import useSideBar from '@/components/composables/useSideBar'
 
+
 export default {
-  name: 'Home',
-  setup(){
+    name: 'Dashboards',
+    setup(){
 
       const {menu, selectSideBarLine} = useSideBar()
       return {
@@ -26,7 +27,6 @@ export default {
         this.$emit('selectSideBarLine', this.$route.name)
       }
     }
-
 }
 </script>
 

@@ -7,7 +7,7 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li v-for="line in menu" :key="line.title" class="nav-item">
-            <router-link v-on:click="setActive(line)" :class="line.class" to="/">
+            <router-link v-on:click="selectSideBarLine(line)" :class="line.class" :to=line.route>
                 <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"></use></svg>
                 {{line.title}}
             </router-link>
@@ -60,55 +60,34 @@
   </div>  
 </template>
 
+
 <script>
+
+
+
 export default {
     name: 'Sidebar',
-    data(){
-        return {
-                menu: [
-                {
-                    title: "Home",
-                    active: false,
-                    class: "nav-link text-white",
-                    route: "/"
-                },
-                {
-                    title: "Dashboards",
-                    active: false,
-                    class: "nav-link text-white",
-                    route: "/dashboards"
-                },
-                {
-                    title: "Repositories",
-                    active: false,
-                    class: "nav-link text-white",
-                    route: "/repos"
-                },
-                {
-                    title: "Backlog",
-                    active: false,
-                    class: "nav-link text-white",
-                    route: "/backlog"
-                },
-                {
-                    title: "Roadmap",
-                    active: false,
-                    class: "nav-link text-white",
-                    route: "/roadmap"
-                },
-            ]
-        }
+    props:{
+      menu:{
+        type: Array,
+        default: ()=>{}
+      }
     },
+
+    // setup(){
+    //   const { currentRoute } = router
+    //   console.log(currentRoute.value)
+    //   const { menu, selectSideBarLine } = useSideBar(currentRoute)
+      
+
+    //   return {
+    //     menu,
+    //     selectSideBarLine
+    //   }
+    // },
     methods: {
-        setActive(line){
-            line.active = !line.active
-            if (line.active){
-                line.class = "nav-link active"
-            }
-            else{
-                line.class = "nav-link text-white"
-            }
-            console.log(this.menu)
+        selectSideBarLine(line){
+            this.$emit('selectSideBarLine', line.title)
         }
     },
 }

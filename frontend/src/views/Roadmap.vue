@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    home
+  <div class="roadmap-view">
+    Roadmap
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import useSideBar from '@/components/composables/useSideBar'
 
 export default {
-  name: 'Home',
+  name: 'Roadmap',
   setup(){
 
       const {menu, selectSideBarLine} = useSideBar()
