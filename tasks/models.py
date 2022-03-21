@@ -1,3 +1,4 @@
+from projects.models import Project
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -51,6 +52,7 @@ class Task(models.Model):
     implementer = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True
     )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     def __str__(self) -> str:
         return f"Задача {self.title} - {self.type_task.title}"

@@ -1,6 +1,7 @@
 from rest_framework.validators import ValidationError
 from rest_framework import serializers
 from .models import Task, TypeTask, EpicTask
+from projects.serializers import ProjectSerializer
 from django.contrib.auth.models import User
 
 
@@ -8,11 +9,12 @@ class TaskSerializer(serializers.ModelSerializer):
     type = serializers.StringRelatedField(source="type_task")
     epic = serializers.StringRelatedField(source="epic_task")
     developer = serializers.StringRelatedField(source="implementer")
+    project = ProjectSerializer()
 
 
     class Meta:
         model = Task
-        fields = ('id', 'title', 'type', 'epic', 'developer')
+        fields = ('id', 'title', 'type', 'epic', 'developer', 'project')
 
 
 
