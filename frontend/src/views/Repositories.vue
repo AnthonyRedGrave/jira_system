@@ -1,6 +1,9 @@
 <template>
   <div class="repositories-view">
     Repositories
+    Подключение репозиториев
+    Просмотр изменений там
+    
   </div>
 </template>
 

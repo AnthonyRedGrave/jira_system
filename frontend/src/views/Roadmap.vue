@@ -1,6 +1,8 @@
 <template>
   <div class="roadmap-view">
     Roadmap
+    Просмотр хода процесса выполнения заданий на проекте
+    указание времени, дедлайнов
   </div>
 </template>
 
