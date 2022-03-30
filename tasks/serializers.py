@@ -14,7 +14,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ('id', 'title', 'type', 'epic', 'developer', 'project')
+        fields = ('id', 'title', 'type', 'epic', 'description', 'developer', 'project')
 
 
 
@@ -22,6 +22,7 @@ class PartialUpdateTaskSerializer(serializers.Serializer):
     title = serializers.CharField()
     type_task = serializers.CharField()
     epic_task = serializers.CharField()
+    description = serializers.CharField()
     implementer = serializers.CharField()
 
     def validate_type_task(self, value):

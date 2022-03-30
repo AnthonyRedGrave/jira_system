@@ -13,7 +13,7 @@
           <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
               <span v-for="proj in managerProjectsList" :key="proj.id">
-                {{proj.title}}
+                Проект {{proj.title}}
               </span>
             </div>
           </div>
@@ -27,7 +27,7 @@
           <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
               <span v-for="proj in developerProjectsList" :key="proj.id">
-                {{proj.title}}
+                Проект {{proj.title}}
               </span>
             </div>
           </div>
@@ -52,7 +52,7 @@
             <span>Менеджер {{project.manager_name}}</span>
             <br>
             <button type="button" class="btn btn-primary">
-              Уведомления <span class="badge bg-secondary">4</span>
+              Уведомления <span class="badge bg-secondary">{{project.notifications}}</span>
             </button>
           </div>
 
