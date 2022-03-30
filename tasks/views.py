@@ -2,6 +2,7 @@ from tasks.serializers import PartialUpdateTaskSerializer, TaskSerializer, TypeT
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from .models import Task, TypeTask, EpicTask
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import mixins
 
@@ -9,12 +10,16 @@ from rest_framework import mixins
 class TaskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action == 'partial_update':
             return PartialUpdateTaskSerializer
         return super().get_serializer_class()
 
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(implementer=self.request.user)
+        return queryset
     
     def perform_update(self, serializer):
         task = self.get_object()

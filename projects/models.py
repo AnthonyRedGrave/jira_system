@@ -16,7 +16,8 @@ class Project(models.Model):
 
 
     title = models.CharField("Проект", max_length=150)
-    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='managed_project')
+    developers = models.ManyToManyField(User)
     type = models.CharField("Тип проекта", choices=TypeProject.choices, max_length=50)
 
     def __str__(self) -> str:
