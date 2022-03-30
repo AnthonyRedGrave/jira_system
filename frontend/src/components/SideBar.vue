@@ -74,17 +74,6 @@ export default {
       }
     },
 
-    // setup(){
-    //   const { currentRoute } = router
-    //   console.log(currentRoute.value)
-    //   const { menu, selectSideBarLine } = useSideBar(currentRoute)
-      
-
-    //   return {
-    //     menu,
-    //     selectSideBarLine
-    //   }
-    // },
     methods: {
         selectSideBarLine(line){
             this.$emit('selectSideBarLine', line.title)

@@ -17,13 +17,7 @@ export default {
   components: {
     SideBar
   },
-  data(){
-    return{
-      currentRoute: ""
-    }
-  },
   setup(){
-      // const { currentRoute } = router
       const { menu, selectSideBarLine } = useSideBar()
 
       

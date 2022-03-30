@@ -1,36 +1,54 @@
-from tasks.serializers import PartialUpdateTaskSerializer, TaskSerializer, TypeTaskSerializer
+from tasks.serializers import (
+    PartialUpdateTaskSerializer,
+    TaskSerializer,
+    TypeTaskSerializer,
+)
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from .models import Task, TypeTask, EpicTask
+from projects.models import Notification
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import mixins
 
 
-class TaskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
+class TaskViewSet(
+    mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet
+):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
-        if self.action == 'partial_update':
+        if self.action == "partial_update":
             return PartialUpdateTaskSerializer
         return super().get_serializer_class()
 
-    
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(implementer=self.request.user)
+        return queryset
+
     def perform_update(self, serializer):
         task = self.get_object()
+        task.title = serializer.validated_data.get("title", task.title)
         print(serializer.validated_data)
-        task.title = serializer.validated_data.get('title', task.title)
-        task.description = serializer.validated_data.get('description', task.description)
-        task.type_task = serializer.validated_data.get('type_task', task.type_task)
-        task.epic_task = serializer.validated_data.get('epic_task', task.epic_task)
-        task.implementer = serializer.validated_data.get('implementer', task.implementer)
+        task.description = serializer.validated_data.get(
+            "description", task.description
+        )
+        task.type_task = serializer.validated_data.get("type_task", task.type_task)
+        task.epic_task = serializer.validated_data.get("epic_task", task.epic_task)
+        task.implementer = serializer.validated_data.get(
+            "implementer", task.implementer
+        )
         task.save()
+        Notification.objects.get_or_create(
+            project=task.project,
+            user=task.implementer,
+            type=Notification.NotificationType.change.value,
+        )
         return Response(serializer.data)
-    
 
 
 class TypeTaskViewSet(ReadOnlyModelViewSet, mixins.UpdateModelMixin):
     queryset = TypeTask.objects.all()
     serializer_class = TypeTaskSerializer
-
-    
