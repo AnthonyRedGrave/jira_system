@@ -1,4 +1,4 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -21,14 +21,16 @@ class NotificationViewSet(ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
-class ProjectViewSet(ModelViewSet):
-    serializer_class = ProjectSerializer
+class ProjectViewSet(ReadOnlyModelViewSet):
     queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        queryset = super().get_queryset().filter(manager=self.request.user) | super().get_queryset().filter(developers__id__exact=self.request.user.id)
-        return set(project for project in queryset)
+
+    @action(detail=False, methods=["get"])
+    def work(self, request, pk=None):
+        return set(project for project in super().get_queryset().filter(manager=self.request.user) | super().get_queryset().filter(developers__id__exact=self.request.user.id))
+
 
     @action(detail=True, methods=["get"])
     def board(self, request, pk=None):

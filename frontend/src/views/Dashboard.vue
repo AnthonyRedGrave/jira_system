@@ -1,22 +1,14 @@
 <template>
   <div class="dashboard-vue">
     <div class="todo-container">
-      <div class="status">
-        <h1>No status</h1>
-        <button id="add_btn">Add Task</button>
-        <div class="todo">
-          Buy a Pizza
+      <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" @dragover="dragOver($event)" @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" @drop="dragDrop($event)">
+        <h1>{{status}}</h1>
+        <button v-if="index == 0" id="add_btn">Add Task</button>
+        <button v-else id="add_btn" style="opacity: 0;cursor: default;">Add Task</button>
+        <div v-for="task in dashboardData[status]" :key="task"  class="todo" @dragstart="dragStart($event)" @dragend="dragEnd($event)" draggable="true"> 
+          {{task.title}}
           <span class="close">&times;</span>
         </div>
-      </div>
-      <div class="status">
-        <h1>Not started</h1>
-      </div>
-      <div class="status">
-        <h1>In progress</h1>
-      </div>
-      <div class="status">
-        <h1>Completed</h1>
       </div>
     </div>
   </div>
@@ -24,7 +16,7 @@
 
 <script>
 import useSideBar from '@/components/composables/useSideBar'
-
+import axios from 'axios'
 
 export default {
     name: 'Dashboards',
@@ -36,13 +28,67 @@ export default {
         menu
       }
     },
+    data(){
+      return{
+        draggableTodo: null,
+        tasks: [],
+        statuses: [],
+        dashboardData: null
+      }
+    },
     created(){
       this.get()
-        
+      this.getDashboardData()
     },
     methods:{
       get(){
         this.$emit('selectSideBarLine', this.$route.name)
+      },
+      getDashboardData(){
+        axios({
+                method: "get",
+                url: `http://localhost:8000/api/projects/1/board/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                    this.dashboardData = responce.data
+                    console.log(this.dashboardData)
+                    
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+      },
+      dragStart(el){
+        this.draggableTodo = el.target
+      },
+      dragEnd(){
+        this.draggableTodo = null
+        
+      },
+      dragOver(e){
+        e.preventDefault();
+
+      },
+      dragEnter(el){
+        el.target.style.border = "3px solid black"
+      },
+      dragLeave(el){
+        el.target.style.border = "none"
+      },
+      dragDrop(el){
+        if (el.target.className === "status"){
+          el.target.appendChild(this.draggableTodo)
+          el.target.style.border = "none" 
+        }
+        else if(el.target.className === "todo"){
+          el.target.parentElement.appendChild(this.draggableTodo)
+          el.target.style.border = "none" 
+        }
+        
       }
     }
 }
@@ -58,13 +104,13 @@ export default {
     box-sizing: border-box;
   }
   .todo-container{
-    width: 1000px;
-    height: 80vh;
+    width: auto;
+    height: auto;
     display: flex;
 
   }
   .status{
-    width: 25%;
+    width: 300px;
     background-color: #f3f3f3;
     position: relative;
     padding-top: 60px;
@@ -92,7 +138,8 @@ export default {
     border: none;
     width: 100%;
     font-size: 1.5rem;
-    margin: 4rem 0;
+    margin-top: 4rem;
+    margin-bottom: 1rem;
     border-radius: 4px;
     cursor: pointer;
   }

@@ -9,12 +9,11 @@ class TaskSerializer(serializers.ModelSerializer):
     type = serializers.StringRelatedField(source="type_task")
     epic = serializers.StringRelatedField(source="epic_task")
     developer = serializers.StringRelatedField(source="implementer")
-    project = ProjectSerializer()
 
 
     class Meta:
         model = Task
-        fields = ('id', 'title', 'type', 'epic', 'description', 'developer', 'project')
+        fields = ('id', 'title', 'type', 'epic', 'description', 'developer')
 
 
 
