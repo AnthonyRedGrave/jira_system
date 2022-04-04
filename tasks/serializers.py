@@ -1,7 +1,7 @@
+from projects.models import Project
 from rest_framework.validators import ValidationError
 from rest_framework import serializers
 from .models import Task, TypeTask, EpicTask
-from projects.serializers import ProjectSerializer
 from django.contrib.auth.models import User
 
 
@@ -17,12 +17,13 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 
-class PartialUpdateTaskSerializer(serializers.Serializer):
+class CreatePartialUpdateTaskSerializer(serializers.Serializer):
     title = serializers.CharField()
     type_task = serializers.CharField()
     epic_task = serializers.CharField()
     description = serializers.CharField()
-    implementer = serializers.CharField()
+    implementer = serializers.CharField(required=False)
+    project = serializers.CharField()
 
     def validate_type_task(self, value):
         type_task = TypeTask.objects.filter(title=value).last()
@@ -42,14 +43,11 @@ class PartialUpdateTaskSerializer(serializers.Serializer):
             raise ValidationError("Такого разработчика не существует!")
         return implementer
 
-
-    
-
-
-    # def update(self, instance, validated_data):
-    #     print(validated_data)
-    #     return super().update(instance, validated_data)
-
+    def validate_project(self, value):
+        project = Project.objects.filter(id=value).last()
+        if not project:
+            raise ValidationError("Такого проекта не существует!")
+        return project
 
 
 class TypeTaskSerializer(serializers.ModelSerializer):

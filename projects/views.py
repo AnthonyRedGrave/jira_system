@@ -26,11 +26,18 @@ class ProjectViewSet(ReadOnlyModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated,)
 
-
     @action(detail=False, methods=["get"])
-    def work(self, request, pk=None):
-        return set(project for project in super().get_queryset().filter(manager=self.request.user) | super().get_queryset().filter(developers__id__exact=self.request.user.id))
-
+    def work(self, request, pk=None): 
+        projects = set(
+                project
+                for project in super().get_queryset().filter(manager=self.request.user)
+                | super()
+                .get_queryset()
+                .filter(developers__id__exact=self.request.user.id)
+            )
+        serializer = self.get_serializer(projects, many=True)
+        return Response(serializer.data)
+        
 
     @action(detail=True, methods=["get"])
     def board(self, request, pk=None):

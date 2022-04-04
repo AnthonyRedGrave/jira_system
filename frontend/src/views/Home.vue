@@ -112,7 +112,6 @@ export default {
         })
         .then((response) => {
           this.projects = response.data
-          console.log(this.projects)
         })
           .catch((err) => {
             console.log(err);

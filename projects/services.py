@@ -1,4 +1,5 @@
 from tasks.serializers import TaskSerializer
+from projects.models import Notification
 
 def get_tasks_board(tasks):
     tasks_json = {}
@@ -9,3 +10,7 @@ def get_tasks_board(tasks):
             tasks_json[task.type_task.title] = [(TaskSerializer(task, many=False).data)]
 
     return tasks_json
+
+
+def create_notification(kwargs):
+    Notification.objects.create(**kwargs)
