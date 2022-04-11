@@ -1,7 +1,9 @@
 <template>
   <div class="dashboards-vue">
+      <span class="your_projects_span">Ваши проекты</span>
+      <hr>
       <div class="projects_list">
-        <div v-for="project in projects" :key="project.id" class="project_block">
+        <div v-for="project in projects" :key="project.id" class="project_block" @click="toDashboard(project.id)">
           <div class="project_title">
             Проект {{project.title}}
           </div>
@@ -41,6 +43,9 @@ export default {
             console.log(err);
           });
       },
+      toDashboard(id){
+        this.$router.push({ path: 'Dashboard', query: {'id': id }})
+      }
   }
 }
 </script>
@@ -48,5 +53,17 @@ export default {
 <style>
 .project_block{
   min-height: 240px;
+}
+.your_projects_span{
+  font-size: 32px;
+}
+
+.projects_list{
+  margin-top: 10px;
+}
+
+
+.dashboards-vue{
+  margin-top: 10px;
 }
 </style>

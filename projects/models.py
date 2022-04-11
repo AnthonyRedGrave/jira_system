@@ -20,6 +20,10 @@ class Project(models.Model):
     developers = models.ManyToManyField(User)
     type = models.CharField("Тип проекта", choices=TypeProject.choices, max_length=50)
 
+    @property
+    def num_notifications(self):
+        return self.notifictions.all().count()
+
     def __str__(self) -> str:
         return f"Проект {self.title}"
 
@@ -28,25 +32,4 @@ class Project(models.Model):
         verbose_name_plural = "Проекты"
 
 
-class Notification(models.Model):
-    class NotificationType(models.TextChoices):
-        task = "task", "Задача"
-        invitation = "invitation", "Приглашение"
-        change = "change", "Изменение"
-        message = "message", "Сообщение"
 
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="notifictions"
-    )
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="notifictions"
-    )
-    read = models.BooleanField(default=False)
-    type = models.CharField("Тип уведомления", max_length=30, choices=NotificationType.choices)
-
-    def __str__(self) -> str:
-        return f"{self.project} {self.user} {self.read}"
-
-    class Meta:
-        verbose_name = "Уведомление"
-        verbose_name_plural = "Уведомления"

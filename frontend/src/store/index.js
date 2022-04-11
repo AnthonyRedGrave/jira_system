@@ -68,6 +68,23 @@ export default createStore({
                     })
             })
         },
+    getNotifications(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://localhost:8000/api/projects/notifications/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateProjects', { projects: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
+        },
     getTasks(context, access) {
             return new Promise((resolve, reject) => {
                 axios({

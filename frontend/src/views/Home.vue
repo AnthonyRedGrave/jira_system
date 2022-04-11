@@ -52,7 +52,7 @@
             <span>Менеджер {{project.manager_name}}</span>
             <br>
             <button type="button" class="btn btn-primary">
-              Уведомления <span class="badge bg-secondary">{{project.notifications}}</span>
+              Уведомления <span class="badge bg-secondary">{{project.notifications.length}}</span>
             </button>
           </div>
 
@@ -157,6 +157,7 @@ export default {
 
 .project_block{
   border:1px solid #0d6efd;
+  border-radius: 5px;
   padding: 15px;
   font-size: 22px;
   box-shadow: 0 0 5px rgba(0,0,0,0.5);

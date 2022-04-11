@@ -1,14 +1,16 @@
 <template>
   <div class="dashboard-vue">
     <div class="todo-container">
+      <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
       <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" @dragover="dragOver($event)" @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" @drop="dragDrop($event)">
         <h1>{{status}}</h1>
         <button v-if="index == 0" id="add_btn">Add Task</button>
         <button v-else id="add_btn" style="opacity: 0;cursor: default;">Add Task</button>
-        <div v-for="task in dashboardData[status]" :key="task"  class="todo" @dragstart="dragStart($event)" @dragend="dragEnd($event)" draggable="true"> 
+        <div v-for="task in dashboardData[status]" :key="task" class="todo" @click="showPopup(task)" @dragstart="dragStart($event)" @dragend="dragEnd($event)" draggable="true" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
           {{task.title}}
           <span class="close">&times;</span>
         </div>
+        
       </div>
     </div>
   </div>
@@ -17,9 +19,13 @@
 <script>
 import useSideBar from '@/components/composables/useSideBar'
 import axios from 'axios'
+import TaskModal from './TaskModal.vue'
 
 export default {
     name: 'Dashboards',
+    components:{
+        TaskModal
+    },
     setup(){
 
       const {menu, selectSideBarLine} = useSideBar()
@@ -33,7 +39,9 @@ export default {
         draggableTodo: null,
         tasks: [],
         statuses: [],
-        dashboardData: null
+        dashboardData: null,
+        task_info: null,
+        isInfoPopupVisible: false
       }
     },
     created(){
@@ -42,25 +50,30 @@ export default {
     },
     methods:{
       get(){
-        this.$emit('selectSideBarLine', this.$route.name)
+        this.$emit('selectSideBarLine', 'Dashboards')
       },
       getDashboardData(){
         axios({
                 method: "get",
-                url: `http://localhost:8000/api/projects/1/board/`,
+                url: `http://localhost:8000/api/projects/${this.$route.query.id}/board/`,
                 headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,
                 },
                 credentials: "include",
                 })
                 .then((responce) => {
-                    this.dashboardData = responce.data
-                    console.log(this.dashboardData)
-                    
+                    this.dashboardData = responce.data                    
                 })
                 .catch((err) => {
                 console.log(err);
                 });
+      },
+      showPopup(task){
+        this.isInfoPopupVisible = true
+        this.task_info = task
+      },
+      closePopup(){
+        this.isInfoPopupVisible =  false
       },
       dragStart(el){
         this.draggableTodo = el.target
@@ -158,6 +171,7 @@ export default {
     border-radius: 4px;
     padding: 0.5rem 1rem;
     font-size: 1.5rem;
+    margin-bottom: 10px;
 
   }
 

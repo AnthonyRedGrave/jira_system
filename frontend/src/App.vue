@@ -34,4 +34,10 @@ export default {
   #app{
     display: flex;
   }
+  .side-bar{
+    position: fixed;
+  }
+  .router{
+    margin-left: 300px;
+  }
 </style>

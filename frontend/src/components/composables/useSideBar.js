@@ -43,6 +43,13 @@ export default function useSideBar() {
                         class: "nav-link text-white",
                         route: "/roadmap"
                     },
+                    {
+                        id: 6,
+                        title: "Notifications",
+                        active: false,
+                        class: "nav-link text-white",
+                        route: "/notifications"
+                    },
                 ]
     }
 

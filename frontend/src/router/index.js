@@ -1,10 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Dashboards from '../views/Dashboards.vue'
+import Dashboard from '../views/Dashboard.vue'
 import Repositories from '../views/Repositories.vue'
 import Backlog from '../views/Backlog.vue'
 import Roadmap from '../views/Roadmap.vue'
 import Login from '../views/Login.vue'
+import Notifications from '../views/Notifications.vue'
 import store from '@/store/index.js'
 
 
@@ -32,6 +34,14 @@ const routes = [
     }
   },
   {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
     path: '/repos',
     name: 'Repositories',
     component: Repositories,
@@ -51,6 +61,14 @@ const routes = [
     path: '/roadmap',
     name: 'Roadmap',
     component: Roadmap,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/notifications',
+    name: 'Notifications',
+    component: Notifications,
     meta: {
         requiresAuth: true
     }

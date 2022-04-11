@@ -4,10 +4,10 @@ from tasks.serializers import (
     TaskSerializer,
     TypeTaskSerializer,
 )
-from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-from .models import Task, TypeTask, EpicTask
-from projects.models import Notification
-from projects.services import create_notification
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from .models import Task, TypeTask
+from notifications.models import Notification
+from notifications.services import create_notification
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -31,22 +31,22 @@ class TaskViewSet(
         return queryset
 
     def perform_create(self, serializer):
-        implementer = serializer.validated_data.get("implementer", self.request.user)
-        new_task = Task(implementer=implementer, **serializer.validated_data)
         if serializer.validated_data.get("implementer"):
-            print("менеджер создал")
-            # create_notification(
-            #     new_task.project, self.request.user, Notification.NotificationType.task
-            # )
+            new_task = Task.objects.create(**serializer.validated_data)
+            create_notification(
+                new_task.project, self.request.user, new_task.project.manager, Notification.NotificationType.task
+            )
         else:
-            print("менеджеру прилетело")
-            # create_notification(
-            #     new_task.project,
-            #     new_task.project.manager,
-            #     Notification.NotificationType.message,
-            # )
+            new_task = Task.objects.create(
+                implementer=self.request.user, **serializer.validated_data
+            )
+            create_notification(
+                new_task.project,
+                new_task.project.manager,
+                self.request.user,
+                Notification.NotificationType.message,
+            )
         return new_task
-        # return super().perform_create(serializer)
 
     def perform_update(self, serializer):
         task = self.get_object()
@@ -60,20 +60,18 @@ class TaskViewSet(
             "implementer", task.implementer
         )
         task.save()
-        if not serializer.validated_data.get("implementer"):
-            print("приходит разработчику")
-            # create_notification(
-            #     task.project,
-            #     task.implementer,
-            #     Notification.NotificationType.change.value,
-            # )
+        if serializer.validated_data.get("implementer"):
+            create_notification(
+                task.project,
+                task.implementer,
+                Notification.NotificationType.change.value,
+            )
         else:
-            print("приходит разработчику")
-            # create_notification(
-            #     task.project,
-            #     task.project.manager,
-            #     Notification.NotificationType.message,
-            # )
+            create_notification(
+                task.project,
+                task.project.manager,
+                Notification.NotificationType.message,
+            )
         return Response(serializer.data)
 
 
