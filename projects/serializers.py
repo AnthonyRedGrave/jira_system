@@ -1,9 +1,14 @@
+from rest_framework.validators import ValidationError
 from tasks.serializers import TaskSerializer
 from notifications.serializers import NotificationSerializer
 from tasks.models import Task
 from rest_framework import serializers
 from .models import Project
 from notifications.models import Notification
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -41,3 +46,17 @@ class ProjectSerializer(serializers.ModelSerializer):
             "notifications",
             "last_task",
         )
+
+
+
+class CreateUpdateProjectSerializer(serializers.Serializer):
+    title=serializers.CharField()
+    type = serializers.ChoiceField(choices=Project.TypeProject)
+    developers = serializers.CharField()
+
+    def validate_developers(self, value):
+        developers = value.split(",")
+        developers_db = User.objects.filter(username__in=developers).all()
+        if len(developers) != len(developers_db):
+            raise ValidationError("Не все пользователи существуют!")
+        return list(developers_db)

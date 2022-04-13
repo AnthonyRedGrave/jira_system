@@ -1,7 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from projects.models import Project
 from tasks.models import Task
+
+
+User = get_user_model()
+
 
 class Notification(models.Model):
     class NotificationType(models.TextChoices):

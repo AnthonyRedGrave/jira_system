@@ -2,15 +2,25 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import mixins
 from .models import Project
-from .serializers import ProjectSerializer
+from .serializers import CreateUpdateProjectSerializer, ProjectSerializer
 from .services import get_tasks_board
 
 
-class ProjectViewSet(ReadOnlyModelViewSet):
+class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateUpdateProjectSerializer
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        print(serializer.validated_data)
+        return "123"
 
     @action(detail=False, methods=["get"])
     def notifications(self, request, pk=None):
