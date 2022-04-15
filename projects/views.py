@@ -19,8 +19,8 @@ class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyM
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
-        print(serializer.validated_data)
-        return "123"
+        project = Project.objects.create(title = serializer.validated_data['title'], type=serializer.validated_data['type'], manager = self.request.user)
+        project.developers.set(serializer.validated_data['developers'])
 
     @action(detail=False, methods=["get"])
     def notifications(self, request, pk=None):

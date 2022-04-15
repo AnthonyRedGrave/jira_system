@@ -62,14 +62,14 @@
     <div class="create_project_block">
       <button type="button" class="btn btn-outline-primary accordion_show_form" @click="showCreateProjectForm($event)">Создать проект</button>
       <div class="panel">
-        <form>
+        <form @submit.prevent="createProject">
           <div class="mb-3">
             <label class="form-label">Название проекта</label>
-            <input class="form-control">
+            <input class="form-control" v-model="titleProject">
           </div>
           <div class="mb-3">
             <label class="form-label">Тип проекта</label>
-            <select class="form-select" aria-label="Default select example">
+            <select v-model="typeProject" class="form-select" aria-label="Default select example">
               <option selected>Выберите тип проекта</option>
               <option value="software">Разработка программного обеспечения</option>
               <option value="service_management">Управление услугами</option>
@@ -84,8 +84,8 @@
           <div class="mb-3">
             <label class="form-label">Разработчики</label>
             <input class="form-control" v-model="username_search" @input="seachDevelopers" placeholder="Введите имена разработчиков для проекта">
-            <div v-if="developers_list" class="developers_block">
-                <div v-for="developer in developers_list" :key="developer.id" class="developer_block">
+            <div v-if="developers" class="developers_block">
+                <div v-for="developer in developers" :key="developer.id" class="developer_block">
                   <div class="developer_avatar">
                     <img v-bind:src="developer.image" class="developer_image" alt="...">
                   </div>
@@ -100,8 +100,8 @@
                     <button type="button" class="btn btn-outline-danger" style="height: 40px;" @click="removeFromDevelopers(developer)">Убрать приглашение</button>
                   </div>
                 </div>
-                <hr v-if="developers_list">
-                <div v-for="developer in developers" :key="developer.id" class="developer_block">
+                <hr>
+                <div v-for="developer in developers_list" :key="developer.id" class="developer_block">
                   <div class="developer_avatar">
                     <img v-bind:src="developer.image" class="developer_image" alt="...">
                   </div>
@@ -117,6 +117,7 @@
                   </div>
                 </div>
             </div>
+            <button type="submit" class="btn btn-outline-primary">Создать проект</button>
           </div>
         </form>
       </div>
@@ -127,7 +128,6 @@
 
 <script>
 import useSideBar from '@/components/composables/useSideBar'
-import useDevelopersList from '@/components/composables/useDevelopersList'
 import axios from 'axios'
 
 export default {
@@ -135,13 +135,10 @@ export default {
   setup(){
 
       const {menu, selectSideBarLine} = useSideBar()
-      const {developers_list, listPush} = useDevelopersList()
 
       return {
         selectSideBarLine,
-        menu,
-        developers_list,
-        listPush
+        menu
       }
     },
     data(){
@@ -152,8 +149,14 @@ export default {
         developerProjectsList: [],
         username: JSON.parse(localStorage.getItem('username')),
         username_search: null,
-        // developers: [],
-        // developers_list: [],
+        titleProject: null,
+        typeProject: null,
+
+
+        developers: [],
+        developers_usernames:[],
+        developers_list_username: [],
+        developers_list: [],
       }
     },
     created(){
@@ -165,8 +168,31 @@ export default {
       get(){
         this.$emit('selectSideBarLine', this.$route.name)
       },
+      createProject(){
+        console.log([...this.developers_usernames])
+        let data = {
+                  title: this.titleProject,
+                  type: this.typeProject,
+                  developers: this.developers_usernames.join(",")
+            }
+        axios({
+              method: "post",
+              url: `http://localhost:8000/api/projects/`,
+              data: data,
+              headers: {
+              Authorization: `Bearer ${this.$store.state.accessToken}`,
+              },
+              })
+              .then((response) => {
+                  console.log(response.data)
+
+              })
+              .catch((err) => {
+              console.log(err);
+              });
+      },
       seachDevelopers(){
-        if(this.username_search){
+        if (this.username_search){
           axios
                 .get(`http://localhost:8000/api/users`, {
                 headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
@@ -175,27 +201,32 @@ export default {
                 },
                 })
                 .then((response) => {
-
-                  this.$emit('listPush', response.data)
-                    // if (this.developers.includes(element)){
-                    //   console.log("have")
-                    // }
-                    // else{
-                    //   console.log(element)
-                    //   console.log(this.developers)
-                    //   this.developers.push(element)
-                    // }
+                  response.data.forEach(element => {
+                    if (!this.developers_list_username.includes(element.username)){
+                      this.developers_list.push(element)
+                      this.developers_list_username.push(element.username)
+                    }
+                  });
                   
                 })
                 .catch((err) => {
                     console.log(err);
                 });
         }
+        else{
+          this.developers_list = []
+          this.developers_list_username = []
+
+        }
+          
       },
       addToDevelopers(developer){
-        this.developers_list.push(developer)
+        this.developers.push(developer)
+        this.developers_usernames.push(developer.username)
         this.username_search = null
-        this.developers = []
+        this.developers_list = []
+        
+        
       },
       showCreateProjectForm(element){
         let panel = element.target.nextElementSibling
@@ -271,6 +302,7 @@ export default {
   max-height: 1000px;
   min-height: 500px;
   border-radius: 15px;
+  margin-bottom: 50px;
   
 }
 
