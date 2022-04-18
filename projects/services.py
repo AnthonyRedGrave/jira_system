@@ -9,3 +9,5 @@ def get_tasks_board(tasks):
             tasks_json[task.type_task.title] = [(TaskSerializer(task, many=False).data)]
 
     return tasks_json
+
+
