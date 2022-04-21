@@ -22,7 +22,7 @@ import axios from 'axios'
 import TaskModal from './TaskModal.vue'
 
 export default {
-    name: 'Dashboards',
+    name: 'Dashboard',
     components:{
         TaskModal
     },
@@ -50,6 +50,7 @@ export default {
     },
     methods:{
       get(){
+        console.log("DASH")
         this.$emit('selectSideBarLine', 'Dashboards')
       },
       getDashboardData(){

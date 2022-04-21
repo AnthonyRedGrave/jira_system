@@ -185,6 +185,7 @@ export default {
               })
               .then((response) => {
                   console.log(response.data)
+                  this.$router.push({ path: 'project-detail', query: {'id': response.data['id'] }})
 
               })
               .catch((err) => {

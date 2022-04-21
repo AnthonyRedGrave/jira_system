@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import mixins
+from rest_framework import status
 from .models import Project
 from .serializers import CreateUpdateProjectSerializer, ProjectSerializer
 from .services import get_tasks_board
@@ -18,9 +19,16 @@ class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyM
             return CreateUpdateProjectSerializer
         return super().get_serializer_class()
 
-    def perform_create(self, serializer):
-        project = Project.objects.create(title = serializer.validated_data['title'], type=serializer.validated_data['type'], manager = self.request.user)
-        project.developers.set(serializer.validated_data['developers'])
+
+    def create(self, request):
+        serializer = self.get_serializer_class()(data=request.data)
+        if serializer.is_valid():
+            project = Project.objects.create(title = serializer.validated_data['title'], type=serializer.validated_data['type'], manager = self.request.user)
+            project.developers.set(serializer.validated_data['developers'])
+            project.save()
+            return Response(ProjectSerializer(project, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
     def notifications(self, request, pk=None):

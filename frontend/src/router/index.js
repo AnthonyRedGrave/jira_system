@@ -7,6 +7,7 @@ import Backlog from '../views/Backlog.vue'
 import Roadmap from '../views/Roadmap.vue'
 import Login from '../views/Login.vue'
 import Notifications from '../views/Notifications.vue'
+import ProjectDetail from '../views/ProjectDetail.vue'
 import store from '@/store/index.js'
 
 
@@ -26,17 +27,25 @@ const routes = [
     component: Login
   },
   {
-    path: '/dashboards',
-    name: 'Dashboards',
-    component: Dashboards,
-    meta: {
-        requiresAuth: true
+    path: '/project-detail',
+    name: 'ProjectDetail',
+    component: ProjectDetail,
+    meta:{
+      requiresAuth: true
     }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/dashboards',
+    name: 'Dashboards',
+    component: Dashboards,
     meta: {
         requiresAuth: true
     }
@@ -86,9 +95,9 @@ router.beforeEach((to, from, next) => {
       next({ name: 'login' })
       return
     }
-    else{
-      next()
-    }
+    // else{
+    //   next()
+    // }
   }
   next()
   

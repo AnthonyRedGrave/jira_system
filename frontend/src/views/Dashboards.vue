@@ -14,6 +14,13 @@
             <div v-if="project.last_task.title">
               <span>Новых задач</span>
             </div>
+            <hr>
+            <button type="button" @click="toDashboard(project.id)" class="btn btn-primary action-dashboard">
+              Доска проекта
+            </button>
+            <button type="button" @click="toProjectPage(project.id)" class="btn btn-primary action-detail">
+              Страница проекта
+            </button>
           </div>
         </div>
       </div>
@@ -44,13 +51,23 @@ export default {
           });
       },
       toDashboard(id){
+        console.log("toDash")
         this.$router.push({ path: 'Dashboard', query: {'id': id }})
+      },
+      toProjectPage(id){
+        console.log("toProj")
+        this.$router.push({ path: 'project-detail', query: {'id': id }})
       }
   }
 }
 </script>
 
-<style>
+<style scoped>
+
+.dashboards-vue{
+  width: 1200px;
+}
+
 .project_block{
   min-height: 240px;
 }
@@ -59,9 +76,24 @@ export default {
 }
 
 .projects_list{
-  margin-top: 10px;
+  display: flex;
+  /* max-width: 1000px; */
+  margin-right: 0;
+  flex-direction: row;
 }
 
+.project_block{
+  width: 450px;
+}
+
+.action-dashboard{
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.action-detail{
+  margin-bottom: 15px;
+}
 
 .dashboards-vue{
   margin-top: 10px;

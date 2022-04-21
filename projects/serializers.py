@@ -50,9 +50,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdateProjectSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
     title=serializers.CharField()
     type = serializers.ChoiceField(choices=Project.TypeProject)
     developers = serializers.CharField()
+
+    def validate_title(self, value):
+        projects = Project.objects.filter(title = value).last()
+        if projects:
+            raise ValidationError("Проект с таким именем уже существует!")
+        return value
 
     def validate_developers(self, value):
         developers = value.split(",")
