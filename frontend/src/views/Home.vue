@@ -169,7 +169,6 @@ export default {
         this.$emit('selectSideBarLine', this.$route.name)
       },
       createProject(){
-        console.log([...this.developers_usernames])
         let data = {
                   title: this.titleProject,
                   type: this.typeProject,
@@ -203,9 +202,10 @@ export default {
                 })
                 .then((response) => {
                   response.data.forEach(element => {
-                    if (!this.developers_list_username.includes(element.username)){
+                    if (!this.developers_list_username.includes(element.username) && !this.developers_usernames.includes(element.username)){
+                      console.log(element)
                       this.developers_list.push(element)
-                      this.developers_list_username.push(element.username)
+                      this.developers_list_username.push(element.username)                    
                     }
                   });
                   
@@ -226,6 +226,7 @@ export default {
         this.developers_usernames.push(developer.username)
         this.username_search = null
         this.developers_list = []
+        this.developers_list_username = []
         
         
       },
@@ -300,7 +301,7 @@ export default {
   margin-top: 25px;
   border: 3px solid #78aeff;
   height: auto;
-  max-height: 1000px;
+  max-height: auto;
   min-height: 500px;
   border-radius: 15px;
   margin-bottom: 50px;

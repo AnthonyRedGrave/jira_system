@@ -15,5 +15,6 @@ class UserViewSet(ReadOnlyModelViewSet):
         username = self.request.query_params.get('username')
         queryset = super().get_queryset()
         if username:
-            return queryset.filter(username__istartswith=username)
+            print(queryset.filter(username__istartswith=username).exclude(id=self.request.user.id))
+            return queryset.filter(username__istartswith=username).exclude(id=self.request.user.id)
         return queryset

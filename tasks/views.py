@@ -1,4 +1,3 @@
-from hashlib import new
 from tasks.serializers import (
     CreatePartialUpdateTaskSerializer,
     TaskSerializer,
@@ -8,7 +7,6 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import Task, TypeTask
 from notifications.models import Notification
 from notifications.services import create_notification
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import mixins

@@ -3,7 +3,7 @@
       <span class="your_projects_span">Ваши проекты</span>
       <hr>
       <div class="projects_list">
-        <div v-for="project in projects" :key="project.id" class="project_block" @click="toDashboard(project.id)">
+        <div v-for="project in projects" :key="project.id" class="project_block">
           <div class="project_title">
             Проект {{project.title}}
           </div>
@@ -50,13 +50,12 @@ export default {
             console.log(err);
           });
       },
-      toDashboard(id){
-        console.log("toDash")
-        this.$router.push({ path: 'Dashboard', query: {'id': id }})
-      },
       toProjectPage(id){
-        console.log("toProj")
+        console.log(id)
         this.$router.push({ path: 'project-detail', query: {'id': id }})
+      },
+      toDashboard(id){
+        this.$router.push({ path: 'dashboard', query: {'id': id }})
       }
   }
 }

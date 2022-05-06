@@ -1,3 +1,4 @@
+from notifications.models import Notification
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework import status
 from .models import Project
 from .serializers import CreateUpdateProjectSerializer, ProjectSerializer
 from .services import get_tasks_board
+from notifications.services import create_notification
 
 
 class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
@@ -26,6 +28,8 @@ class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyM
             project = Project.objects.create(title = serializer.validated_data['title'], type=serializer.validated_data['type'], manager = self.request.user)
             project.developers.set(serializer.validated_data['developers'])
             project.save()
+            for dev in project.developers.all():
+                create_notification(project, dev, project.manager, Notification.NotificationType.invitation)
             return Response(ProjectSerializer(project, context={'request': request}).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
