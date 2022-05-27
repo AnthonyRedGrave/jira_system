@@ -11,14 +11,25 @@ import ProjectDetail from '../views/ProjectDetail.vue'
 import store from '@/store/index.js'
 
 
+const ifAuth = (to, from, next) =>{
+  if (!store.state.accessToken){
+    next('/login')
+    return
+  }
+  else{
+    next()
+  }
+}
+
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home,
+    beforeEnter: ifAuth,
     meta: {
-        requiresAuth: true
+        
     }
   },
   {
@@ -30,6 +41,7 @@ const routes = [
     path: '/project-detail',
     name: 'ProjectDetail',
     component: ProjectDetail,
+    beforeEnter: ifAuth,
     meta:{
       requiresAuth: true
     }
@@ -38,6 +50,7 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -46,6 +59,7 @@ const routes = [
     path: '/dashboards',
     name: 'Dashboards',
     component: Dashboards,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -54,6 +68,7 @@ const routes = [
     path: '/repos',
     name: 'Repositories',
     component: Repositories,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -62,6 +77,7 @@ const routes = [
     path: '/backlog',
     name: 'Backlog',
     component: Backlog,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -70,6 +86,7 @@ const routes = [
     path: '/roadmap',
     name: 'Roadmap',
     component: Roadmap,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -78,6 +95,7 @@ const routes = [
     path: '/notifications',
     name: 'Notifications',
     component: Notifications,
+    beforeEnter: ifAuth,
     meta: {
         requiresAuth: true
     }
@@ -89,18 +107,18 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth) {
-    if (!store.state.accessToken) {
-      next({ name: 'login' })
-      return
-    }
-    // else{
-    //   next()
-    // }
-  }
-  next()
+// router.beforeEach((to, from, next) => {
+//   if (to.meta.requiresAuth) {
+//     if (!store.state.accessToken) {
+//       next({ name: 'login' })
+//       return
+//     }
+//     // else{
+//     //   next()
+//     // }
+//   }
+//   next()
   
-})
+// })
 
 export default router

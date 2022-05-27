@@ -1,5 +1,12 @@
 <template>
   <div class="dashboard-vue">
+    <div v-if="projectInfo.manager_name == this.$store.state.username" class="tasks_form-block">
+      <h2>Панель менеджера проекта</h2>
+      <div class="btn btn-outline-secondary add_type_btn" @click="showCreateTypeTaskForm($event)" style="margin-right: 15px;">Добавить тип для задач</div>
+      <div class="type_task_title">
+        <input class="form-input" placeholder="Новый тип задач" type="text">
+      </div>
+    </div>
     <div class="todo-container">
       <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
       <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" @dragover="dragOver($event)" @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" @drop="dragDrop($event)">
@@ -37,21 +44,48 @@ export default {
     data(){
       return{
         draggableTodo: null,
+        canDeleteTypeTasks: false,
         tasks: [],
         statuses: [],
         dashboardData: null,
         task_info: null,
-        isInfoPopupVisible: false
+        isInfoPopupVisible: false,
+        projectInfo: null
       }
     },
     created(){
       this.get()
+      this.getProjectInfo()
       this.getDashboardData()
     },
     methods:{
       get(){
-        console.log("DASH")
         this.$emit('selectSideBarLine', 'Dashboards')
+      },
+      showCreateTypeTaskForm(element){
+        let panel = element.target.nextElementSibling
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      },
+      getProjectInfo(){
+        axios({
+                method: "get",
+                url: `http://localhost:8000/api/projects/${this.$route.query.id}`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.projectInfo = responce.data                    
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        
       },
       getDashboardData(){
         axios({
@@ -63,7 +97,7 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
-                    this.dashboardData = responce.data                    
+                  this.dashboardData = responce.data                    
                 })
                 .catch((err) => {
                 console.log(err);
@@ -113,14 +147,32 @@ export default {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-top: 15px;
+    /* justify-content: center; */
+    flex-direction: column;
+    /* align-items: center; */
     box-sizing: border-box;
+  }
+
+  .type_task_title{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    /* padding: 0 18px; */
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+  .add_type_btn{
+    margin-top: 10px;
   }
   .todo-container{
     width: auto;
     height: auto;
     display: flex;
+    /* left: 300px;
+    top: 100px; */
+    /* position: absolute; */
 
   }
   .status{

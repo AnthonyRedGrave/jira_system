@@ -51,7 +51,6 @@ export default {
           });
       },
       toProjectPage(id){
-        console.log(id)
         this.$router.push({ path: 'project-detail', query: {'id': id }})
       },
       toDashboard(id){
