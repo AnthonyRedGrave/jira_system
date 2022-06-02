@@ -2,7 +2,10 @@ from projects.models import Project
 from rest_framework.validators import ValidationError
 from rest_framework import serializers
 from .models import Task, TypeTask, EpicTask
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -56,3 +59,27 @@ class TypeTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = TypeTask
         fields = ('id', 'title', 'tasks')
+
+
+class CreateTypeTaskSerializer(serializers.Serializer):
+    title = serializers.CharField()
+
+    def validate_title(self, value):
+        if TypeTask.objects.filter(title=value).first():
+            raise ValidationError("Тип для задач с таким названием уже существует!")
+        return value
+
+
+class EpicTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EpicTask
+        fields = ('id', 'title')
+
+
+class CreateEpicTaskSerializer(serializers.Serializer):
+    title = serializers.CharField()
+
+    def validate_title(self, value):
+        if EpicTask.objects.filter(title=value).first():
+            raise ValidationError("Тип для задач с таким названием уже существует!")
+        return value

@@ -1,15 +1,19 @@
 from tasks.serializers import (
     CreatePartialUpdateTaskSerializer,
+    CreateTypeTaskSerializer,
     TaskSerializer,
     TypeTaskSerializer,
+    EpicTaskSerializer,
+    CreateEpicTaskSerializer
 )
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from .models import Task, TypeTask
+from .models import EpicTask, Task, TypeTask
 from notifications.models import Notification
 from notifications.services import create_notification
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import mixins
+from rest_framework.decorators import action
 
 
 class TaskViewSet(
@@ -32,7 +36,7 @@ class TaskViewSet(
         if serializer.validated_data.get("implementer"):
             new_task = Task.objects.create(**serializer.validated_data)
             create_notification(
-                new_task.project, self.request.user, new_task.project.manager, Notification.NotificationType.task
+                new_task.project, serializer.validated_data.get("implementer"), new_task.project.manager, Notification.NotificationType.task
             )
         else:
             new_task = Task.objects.create(
@@ -41,7 +45,7 @@ class TaskViewSet(
             create_notification(
                 new_task.project,
                 new_task.project.manager,
-                self.request.user,
+                serializer.validated_data.get("implementer"),
                 Notification.NotificationType.message,
             )
         return new_task
@@ -73,6 +77,31 @@ class TaskViewSet(
         return Response(serializer.data)
 
 
-class TypeTaskViewSet(ReadOnlyModelViewSet, mixins.UpdateModelMixin):
+class TypeTaskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
     queryset = TypeTask.objects.all()
     serializer_class = TypeTaskSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateTypeTaskSerializer
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        TypeTask.objects.create(title=serializer.validated_data['title'])
+        
+        return Response("Created!")
+
+class EpicTaskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
+    queryset = EpicTask.objects.all()
+    serializer_class = EpicTaskSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateEpicTaskSerializer
+        return super().get_serializer_class()
+
+    def perform_create(self, serializer):
+        EpicTask.objects.create(title=serializer.validated_data['title'])
+        return Response("Created!")

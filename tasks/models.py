@@ -41,13 +41,13 @@ class Task(models.Model):
     description = models.TextField()
     type_task = models.ForeignKey(
         TypeTask,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="tasks",
         null=True,
         default=get_default_type_task,
     )
     epic_task = models.ForeignKey(
-        EpicTask, on_delete=models.SET_NULL, related_name="tasks", null=True
+        EpicTask, on_delete=models.CASCADE, related_name="tasks", null=True
     )
     implementer = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True
@@ -55,7 +55,9 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
     def __str__(self) -> str:
-        return f"Задача {self.title} - {self.type_task.title}"
+        if self.type_task:
+            return f"Задача {self.title} - {self.type_task.title}"
+        return f"Задача {self.title}"
 
     class Meta:
         verbose_name = "Задача"

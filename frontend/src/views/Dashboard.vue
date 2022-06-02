@@ -4,14 +4,30 @@
       <h2>Панель менеджера проекта</h2>
       <div class="btn btn-outline-secondary add_type_btn" @click="showCreateTypeTaskForm($event)" style="margin-right: 15px;">Добавить тип для задач</div>
       <div class="type_task_title">
-        <input class="form-input" placeholder="Новый тип задач" type="text">
+        <input class="form-control type_task_title_input" placeholder="Новый тип задач" v-model="newTypeTaskTitle" type="text">
+        <button class="btn btn-outline-secondary" @click="createTypeTask()">Добавить</button>
+      </div>
+    </div>
+    <div class="errors__block">
+      <div v-if="errorText" class="alert alert-danger" role="alert">
+        {{errorText}}
       </div>
     </div>
     <div class="todo-container">
       <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
+      <task-modal 
+      v-if="isInfoPopupCreateTaskVisible" 
+      :task_info="task_info" 
+      :epic_tasks="epic_tasks"
+      :manager_name="projectInfo.manager_name"
+      :type_tasks="type_tasks" 
+      :developers="projectInfo.developers" 
+      @closePopup="closePopup"
+      @createTask="createTask">
+      </task-modal>
       <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" @dragover="dragOver($event)" @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" @drop="dragDrop($event)">
         <h1>{{status}}</h1>
-        <button v-if="index == 0" id="add_btn">Add Task</button>
+        <button v-if="index == 0" @click="addNewTask()" id="add_btn">Add Task</button>
         <button v-else id="add_btn" style="opacity: 0;cursor: default;">Add Task</button>
         <div v-for="task in dashboardData[status]" :key="task" class="todo" @click="showPopup(task)" @dragstart="dragStart($event)" @dragend="dragEnd($event)" draggable="true" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
           {{task.title}}
@@ -50,7 +66,12 @@ export default {
         dashboardData: null,
         task_info: null,
         isInfoPopupVisible: false,
-        projectInfo: null
+        projectInfo: null,
+        newTypeTaskTitle: null,
+        errorText: null,
+        isInfoPopupCreateTaskVisible: false,
+        epic_tasks: [],
+        type_tasks: []
       }
     },
     created(){
@@ -70,6 +91,65 @@ export default {
           panel.style.maxHeight = panel.scrollHeight + "px";
         }
       },
+      addNewTask(){
+        this.isInfoPopupCreateTaskVisible = true
+        this.getEpicTasks()
+        this.getTypeTasks()
+        this.task_info = null
+      },
+      createTask(data){
+        data['project'] = this.$route.query.id
+        axios({
+          method: "post",
+          url: 'http://localhost:8000/api/tasks/',
+          data: data,
+          headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+          })
+          .then((responce) =>{
+            console.log(responce.data)
+            this.isInfoPopupCreateTaskVisible = false
+            this.getDashboardData()
+          })
+          .catch((err) => {
+                console.log(err);
+                this.errorText = err.response.data.title[0]
+          });
+      },
+      getEpicTasks(){
+            axios({
+                method: "get",
+                url: `http://localhost:8000/api/epics/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.epic_tasks = responce.data                    
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
+      getTypeTasks(){
+            axios({
+                method: "get",
+                url: `http://localhost:8000/api/types/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.type_tasks = responce.data                    
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
       getProjectInfo(){
         axios({
                 method: "get",
@@ -87,6 +167,28 @@ export default {
                 });
         
       },
+      createTypeTask(){
+        let data = {
+          title: this.newTypeTaskTitle
+        }
+        axios({
+          method: "post",
+          url: 'http://localhost:8000/api/types/',
+          data: data,
+          headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+          })
+          .then((ressponce) =>{
+            this.newTypeTaskTitle = null
+            console.log(ressponce.data)
+          })
+          .catch((err) => {
+                console.log(err);
+                this.errorText = err.response.data.title[0]
+          });
+      },
       getDashboardData(){
         axios({
                 method: "get",
@@ -97,6 +199,7 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
+                  
                   this.dashboardData = responce.data                    
                 })
                 .catch((err) => {
@@ -109,6 +212,7 @@ export default {
       },
       closePopup(){
         this.isInfoPopupVisible =  false
+        this.isInfoPopupCreateTaskVisible = false
       },
       dragStart(el){
         this.draggableTodo = el.target
@@ -162,6 +266,10 @@ export default {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-out;
+  }
+  .type_task_title_input{
+    margin-bottom: 10px;
+    width: 204px;
   }
   .add_type_btn{
     margin-top: 10px;
