@@ -17,7 +17,7 @@ from rest_framework.decorators import action
 
 
 class TaskViewSet(
-    mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet
+    mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, ReadOnlyModelViewSet
 ):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -65,13 +65,15 @@ class TaskViewSet(
         if serializer.validated_data.get("implementer"):
             create_notification(
                 task.project,
-                task.implementer,
+                serializer.validated_data.get("implementer"),
+                task.project.manager,
                 Notification.NotificationType.change.value,
             )
         else:
             create_notification(
                 task.project,
                 task.project.manager,
+                serializer.validated_data.get("implementer"),
                 Notification.NotificationType.message,
             )
         return Response(serializer.data)

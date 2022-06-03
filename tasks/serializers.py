@@ -11,12 +11,13 @@ User = get_user_model()
 class TaskSerializer(serializers.ModelSerializer):
     type = serializers.StringRelatedField(source="type_task")
     epic = serializers.StringRelatedField(source="epic_task")
+    epic_color = serializers.StringRelatedField(source="epic_task.color")
     developer = serializers.StringRelatedField(source="implementer")
 
 
     class Meta:
         model = Task
-        fields = ('id', 'title', 'type', 'epic', 'description', 'developer', 'project')
+        fields = ('id', 'title', 'type', 'epic', 'description', 'developer', 'project', 'epic_color')
 
 
 
@@ -73,11 +74,12 @@ class CreateTypeTaskSerializer(serializers.Serializer):
 class EpicTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = EpicTask
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'color')
 
 
 class CreateEpicTaskSerializer(serializers.Serializer):
     title = serializers.CharField()
+    color = serializers.CharField()
 
     def validate_title(self, value):
         if EpicTask.objects.filter(title=value).first():

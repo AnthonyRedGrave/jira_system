@@ -26,6 +26,7 @@ class TypeTask(models.Model):
 class EpicTask(models.Model):
 
     title = models.CharField("Эпик задачи", max_length=150)
+    color = models.CharField("Цвет эпика", max_length=150, null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.title}"

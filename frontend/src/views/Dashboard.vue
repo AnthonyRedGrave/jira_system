@@ -25,13 +25,14 @@
       @closePopup="closePopup"
       @createTask="createTask">
       </task-modal>
-      <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" @dragover="dragOver($event)" @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" @drop="dragDrop($event)">
+      <!-- @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" -->
+      <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" :id=status @dragover="dragOver($event)" @drop="dragDrop($event)">
         <h1>{{status}}</h1>
         <button v-if="index == 0" @click="addNewTask()" id="add_btn">Add Task</button>
         <button v-else id="add_btn" style="opacity: 0;cursor: default;">Add Task</button>
-        <div v-for="task in dashboardData[status]" :key="task" class="todo" @click="showPopup(task)" @dragstart="dragStart($event)" @dragend="dragEnd($event)" draggable="true" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
-          {{task.title}}
-          <span class="close">&times;</span>
+        <div v-for="task in dashboardData[status]" :style="{'border': `1px solid ${task.epic_color}`}" :key="task" class="todo" :id=task.id @dragstart="dragStart($event, task)" @dragend="dragEnd($event)" draggable="true" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
+          <span @click="showPopup(task)">{{task.title}}</span>
+          <span v-if="task.developer == this.$store.state.username" class="close" @click="deleteTask(task.id)">&times;</span>
         </div>
         
       </div>
@@ -71,7 +72,8 @@ export default {
         errorText: null,
         isInfoPopupCreateTaskVisible: false,
         epic_tasks: [],
-        type_tasks: []
+        type_tasks: [],
+        source_epic_color: null,
       }
     },
     created(){
@@ -117,6 +119,25 @@ export default {
                 console.log(err);
                 this.errorText = err.response.data.title[0]
           });
+      },
+      deleteTask(task_id){
+        axios({
+          method: "delete",
+          url: `http://localhost:8000/api/tasks/${task_id}/`,
+          headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+          })
+          .then((responce) =>{
+            console.log(responce.data)
+            this.getDashboardData()
+          })
+          .catch((err) => {
+                console.log(err);
+                this.errorText = err.response.data.title[0]
+          });
+
       },
       getEpicTasks(){
             axios({
@@ -214,8 +235,16 @@ export default {
         this.isInfoPopupVisible =  false
         this.isInfoPopupCreateTaskVisible = false
       },
-      dragStart(el){
-        this.draggableTodo = el.target
+      dragStart(el, task){
+        
+
+        if (task.developer !== this.$store.state.username){
+          alert("Вы не можете перетаскивать чужие задачи!")
+        }
+        else{
+          this.draggableTodo = el.target
+        }
+        
       },
       dragEnd(){
         this.draggableTodo = null
@@ -225,22 +254,48 @@ export default {
         e.preventDefault();
 
       },
-      dragEnter(el){
-        el.target.style.border = "3px solid black"
-      },
-      dragLeave(el){
-        el.target.style.border = "none"
-      },
+      // dragEnter(el){
+      //   console.log(el.target)
+      //   // this.source_epic_color = el.target
+      //   if (el.target.className === "todo" && el.target.className === "status"){
+      //     el.target.style.border = "3px solid black"
+      //   }
+      // },
+      // dragLeave(el){
+      //   console.log(el.target)
+      //   // el.target.style.border = "none"
+      // },
       dragDrop(el){
+        let status_title = null
         if (el.target.className === "status"){
+          status_title = el.target.id
           el.target.appendChild(this.draggableTodo)
-          el.target.style.border = "none" 
+          // el.target.style.border = "none" 
         }
         else if(el.target.className === "todo"){
+          status_title = el.target.parentElement.id
           el.target.parentElement.appendChild(this.draggableTodo)
-          el.target.style.border = "none" 
+          // el.target.style.border = "none"
         }
-        
+        else{
+          return
+        }
+        let data = {
+          type_task: status_title,
+          implementer: this.$store.state.username
+        }
+        axios({
+                method: "patch",
+                url: `http://localhost:8000/api/tasks/${this.draggableTodo.id}/`,
+                data: data,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .catch((err) => {
+                console.log(err);
+                });
       }
     }
 }
@@ -347,5 +402,6 @@ export default {
 
   .todo .close:hover{
     color: #343444;
+    /* color: #fbff00; */
   }
 </style>
