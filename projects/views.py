@@ -34,6 +34,18 @@ class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyM
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+    @action(detail=True, methods=["post"])
+    def add_developer(self, request, pk=None):
+        project = self.get_object()
+        serializer = CreateUpdateProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        developer = serializer.validated_data['developers'][0]
+        if developer not in project.developers.all():
+            project.developers.add(developer)
+        return Response('ASD')
+
+
     @action(detail=False, methods=["get"])
     def notifications(self, request, pk=None):
         projects = set(

@@ -51,9 +51,9 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class CreateUpdateProjectSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
-    title=serializers.CharField()
-    type = serializers.ChoiceField(choices=Project.TypeProject)
-    developers = serializers.CharField()
+    title=serializers.CharField(required=False)
+    type = serializers.ChoiceField(choices=Project.TypeProject, required=False)
+    developers = serializers.CharField(required=False)
 
     def validate_title(self, value):
         projects = Project.objects.filter(title = value).last()

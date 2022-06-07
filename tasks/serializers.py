@@ -30,9 +30,8 @@ class CreatePartialUpdateTaskSerializer(serializers.Serializer):
     project = serializers.CharField()
 
     def validate_type_task(self, value):
-        type_task = TypeTask.objects.filter(title=value).last()
-        if not type_task:
-            raise ValidationError("Такого типа задачи не существует!")
+        if not (type_task := TypeTask.objects.filter(title=value).last()):
+            raise ValidationError()
         return type_task
 
     def validate_epic_task(self, value):

@@ -1,3 +1,4 @@
+from pkg_resources import require
 from tasks.serializers import (
     CreatePartialUpdateTaskSerializer,
     CreateTypeTaskSerializer,
@@ -14,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import mixins
 from rest_framework.decorators import action
+from projects.services import get_tasks_board
 
 
 class TaskViewSet(
@@ -32,6 +34,18 @@ class TaskViewSet(
         queryset = super().get_queryset().filter(implementer=self.request.user)
         return queryset
 
+    @action(detail=False, methods=["get"])
+    def filter_tasks(self, request):
+        developer = request.query_params.get('developer')
+        project = request.query_params.get('project')
+        epic = request.query_params.get('epic')
+        if epic:
+            tasks = get_tasks_board(super().get_queryset().filter(epic_task__title = epic))
+        elif developer:
+            tasks = get_tasks_board(super().get_queryset().filter(implementer__username=developer, project = project))
+        return Response(tasks)
+
+
     def perform_create(self, serializer):
         if serializer.validated_data.get("implementer"):
             new_task = Task.objects.create(**serializer.validated_data)
@@ -39,13 +53,14 @@ class TaskViewSet(
                 new_task.project, serializer.validated_data.get("implementer"), new_task.project.manager, Notification.NotificationType.task
             )
         else:
+            
             new_task = Task.objects.create(
                 implementer=self.request.user, **serializer.validated_data
             )
             create_notification(
                 new_task.project,
                 new_task.project.manager,
-                serializer.validated_data.get("implementer"),
+                self.request.user,
                 Notification.NotificationType.message,
             )
         return new_task

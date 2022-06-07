@@ -3,15 +3,47 @@
     <div v-if="projectInfo.manager_name == this.$store.state.username" class="tasks_form-block">
       <h2>Панель менеджера проекта</h2>
       <div class="btn btn-outline-secondary add_type_btn" @click="showCreateTypeTaskForm($event)" style="margin-right: 15px;">Добавить тип для задач</div>
-      <div class="type_task_title">
+      
+      <div class="btn btn-outline-secondary add_developer" @click="showAddDeveloper($event)" style="margin-right: 15px">Добавить разработчика</div>
+      <div class="type_task_title" style="margin-top: 0px;">
         <input class="form-control type_task_title_input" placeholder="Новый тип задач" v-model="newTypeTaskTitle" type="text">
         <button class="btn btn-outline-secondary" @click="createTypeTask()">Добавить</button>
+      </div>
+      <div class="add_new_developer_block" style="margin-top: 0px;">
+        <input class="form-control developer_name" placeholder="Имя разработчика" @input="seachDevelopers" v-model="developer_name" type="text">
+        <div class="block-developers">
+          <div v-for="dev in found_developers" :key="dev.id" class="devel-block">
+            <div class="developer-name" @click="findDeveloper(dev.username)">
+              {{dev.username}}
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline-secondary add_new_developer_btn" :disabled="canAddDeveloperToProject" @click="addDeveloperToProject()">Добавить разработчика</button>
       </div>
     </div>
     <div class="errors__block">
       <div v-if="errorText" class="alert alert-danger" role="alert">
         {{errorText}}
       </div>
+    </div>
+    <div class="project_developers_block">
+      <h3>Разработчики:</h3>
+      <div v-for="developer in projectInfo.developers" :key="developer" class="project_developer__block">
+        <div class="developer__title" @click="filterTasks(developer)">
+              <i class='fas fa-user-alt' style='font-size:20px'></i>
+              {{developer}}
+        </div>
+      </div>
+    </div>
+    <div class="project_epic_tasks_block">
+      <h3>Епики:</h3>
+      <div v-for="epic in epic_tasks" @click="filterTasksByEpic(epic.title)" :key="epic" class="project_epic_task_block">
+        <div class="epic_color_block" :style='{background: epic.color}'></div>
+        {{epic.title}}
+      </div>
+    </div>
+    <div class="remove_filters">
+      <button class="btn btn-outline-secondary" @click="getDashboardData()" style="margin-bottom: 15px;">Сбросить фильтры</button>
     </div>
     <div class="todo-container">
       <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
@@ -25,7 +57,6 @@
       @closePopup="closePopup"
       @createTask="createTask">
       </task-modal>
-      <!-- @dragenter="dragEnter($event)" @dragleave="dragLeave($event)" -->
       <div class="status" v-for="(status, index) in Object.keys(dashboardData)" :key="status" :id=status @dragover="dragOver($event)" @drop="dragDrop($event)">
         <h1>{{status}}</h1>
         <button v-if="index == 0" @click="addNewTask()" id="add_btn">Add Task</button>
@@ -74,23 +105,133 @@ export default {
         epic_tasks: [],
         type_tasks: [],
         source_epic_color: null,
+        developer_name: null,
+        found_developer_name: null,
+        found_developers: [],
       }
     },
     created(){
       this.get()
       this.getProjectInfo()
       this.getDashboardData()
+      this.getEpicTasks()
+    },
+    computed:{
+      canAddDeveloperToProject(){
+        if (this.found_developer_name !== null){
+          return false
+        }
+        return true
+      },
     },
     methods:{
       get(){
         this.$emit('selectSideBarLine', 'Dashboards')
       },
+      filterTasks(developer){
+        axios({
+                method: "get",
+                url: `http://localhost:8000/api/tasks/filter_tasks/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                params:{
+                  developer: developer,
+                  project: this.$route.query.id
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.dashboardData = responce.data                  
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
+      filterTasksByEpic(epic_title){
+        axios({
+                method: "get",
+                url: `http://localhost:8000/api/tasks/filter_tasks/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                params:{
+                  epic: epic_title,
+                  project: this.$route.query.id
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.dashboardData = responce.data                  
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
+      findDeveloper(developer_name){
+        this.found_developer_name = developer_name
+      },
+      addDeveloperToProject(){
+        axios({
+          method: "post",
+          url: `http://localhost:8000/api/projects/${this.$route.query.id}/add_developer/`,
+          data: {
+            developers: this.found_developer_name
+          },
+          headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+          })
+          .then(() =>{
+            this.getDashboardData()
+          })
+          .catch((err) => {
+                console.log(err);
+                this.errorText = err.response.data.title[0]
+          });
+      },
       showCreateTypeTaskForm(element){
-        let panel = element.target.nextElementSibling
+        let panel = element.target.nextElementSibling.nextElementSibling
         if (panel.style.maxHeight) {
           panel.style.maxHeight = null;
+          panel.style.margin = '0 0 20px 0'
         } else {
           panel.style.maxHeight = panel.scrollHeight + "px";
+          panel.style.margin = '20px 0 20px 0'
+          
+        }
+      },
+      showAddDeveloper(element){
+        let panel = element.target.nextElementSibling.nextElementSibling
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+          panel.style.margin = '0 0 20px 0'
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+          panel.style.margin = '20px 0 20px 0'
+          
+        }
+      },
+      seachDevelopers(){
+        if (this.developer_name){
+          axios
+                .get(`http://localhost:8000/api/users`, {
+                headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
+                params: {
+                    username: this.developer_name
+                },
+                })
+                .then((response) => {
+                  this.found_developers = response.data
+                })  
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+        else{
+          this.found_developers = []
+
         }
       },
       addNewTask(){
@@ -254,28 +395,15 @@ export default {
         e.preventDefault();
 
       },
-      // dragEnter(el){
-      //   console.log(el.target)
-      //   // this.source_epic_color = el.target
-      //   if (el.target.className === "todo" && el.target.className === "status"){
-      //     el.target.style.border = "3px solid black"
-      //   }
-      // },
-      // dragLeave(el){
-      //   console.log(el.target)
-      //   // el.target.style.border = "none"
-      // },
       dragDrop(el){
         let status_title = null
         if (el.target.className === "status"){
           status_title = el.target.id
           el.target.appendChild(this.draggableTodo)
-          // el.target.style.border = "none" 
         }
         else if(el.target.className === "todo"){
           status_title = el.target.parentElement.id
           el.target.parentElement.appendChild(this.draggableTodo)
-          // el.target.style.border = "none"
         }
         else{
           return
@@ -312,7 +440,39 @@ export default {
     /* align-items: center; */
     box-sizing: border-box;
   }
+  .developer__title{
+    cursor: pointer;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+  }
+  .project_epic_tasks_block{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .project_epic_task_block{
+    display: flex;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .epic_color_block{
+    width: 15px;
+    height: 15px;
+  }
+  .developer__title:hover{
+    background: rgb(226, 226, 226);
+  }
+  .project_developers_block{
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 
+  }
   .type_task_title{
     margin-top: 20px;
     margin-bottom: 20px;
@@ -322,12 +482,39 @@ export default {
     overflow: hidden;
     transition: max-height 0.2s ease-out;
   }
+  .add_new_developer_block{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    /* padding: 0 18px; */
+    background-color: white;
+    height: 260px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+  .add_new_developer_btn{
+    margin-top: 15px;
+  }
   .type_task_title_input{
     margin-bottom: 10px;
     width: 204px;
   }
   .add_type_btn{
     margin-top: 10px;
+  }
+  .add_developer{
+    margin-top: 10px;
+  }
+  .block-developers{
+    margin-top: 10px;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 5px;
+    height: 150px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
   }
   .todo-container{
     width: auto;
