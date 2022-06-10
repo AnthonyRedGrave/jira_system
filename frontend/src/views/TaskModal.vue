@@ -3,7 +3,8 @@
         <div class="place-popup">
       <div v-if="task_info !== null" class="popup__header">
           <span>
-              {{task_info.title}}
+              ЗАДАЧА: {{task_info.title}}
+              <hr>
           </span>
           <br>
       </div>
@@ -36,10 +37,33 @@
 
       </div>
       <div v-else class="popup__content">
-          {{task_info.description}}
-          {{task_info.type}}
-          {{task_info.epic}}
-          {{task_info.developer}}
+          <div class="popup_task__description">
+              <h4>Описание:</h4> <p class="popup_task__description__change" @click="showChangeFormDescription()">Изменить</p>
+              <textarea v-if="canShowChangeFormDescription" name="form__description" class="form-control" id="" cols="80" rows="5" :value='task_info.description'></textarea>
+              <button v-if="canShowChangeFormDescription" class='btn btn-outline-primary change_description_button' style="margin-top: 15px; margin-bottom: 15px" @click="changeDescription()">Изменить</button>
+              <p v-if="!canShowChangeFormDescription">{{task_info.description}}</p>
+          </div>
+          <div class="popup_task__type" align='left'>
+              <h4>Тип задачи:</h4>  
+              <div class="popup_task__type__title">
+                  {{task_info.type}}
+              </div>
+          </div>
+          <div class="popup_task__epic">
+             <h4>Епик задачи:</h4>  <div class="popup_task__type__title">
+                  {{task_info.epic}}
+              </div>
+          </div>
+          <div class="popup_task__developer">
+             <h4>Разработчик:</h4>  
+             <div class="popup_task__developer__title">
+                 {{task_info.developer}}
+             </div>
+          </div>
+          
+          
+          
+          
       </div>
       <div class="popup__footer">
           <button class="btn btn-danger" @click="closePopup()">Закрыть</button>
@@ -80,9 +104,15 @@ export default {
             new_type_task: null,
             new_epic_task: null,
             new_developer: null,
+            canShowChangeFormDescription: false
 
         }
     },
+    // computed:{
+    //     canShowChangeFormDescription(){
+
+    //     },
+    // },
     methods:{
         closePopup(){
             this.$emit('closePopup')
@@ -99,6 +129,10 @@ export default {
         },
         addDeveloper(dev){
             this.new_developer = dev
+        },
+        showChangeFormDescription(){
+            this.canShowChangeFormDescription = !this.canShowChangeFormDescription
+
         }
     }
 }
@@ -108,6 +142,7 @@ export default {
     .popup_wrapper{
         background: rgba(64, 64, 64, .4);
         display: flex;
+        height: 1100px;
         justify-content: center;
         align-items: center;
         position: absolute;
@@ -133,11 +168,18 @@ export default {
         justify-content: space-between;
         align-items: center;
     }
+    .popup_task__description__change{
+        font-size: 14px;
+        color: rgb(128, 128, 255);
+        cursor: pointer;
+    }
     .popup__content{
         display: flex;
+        flex-direction: column;
+        gap: 10px;
         justify-content: center;
         padding: 70px;
-        align-items: center;
+        align-items: flex-start;
     }
     .popup__form_content{
         display: flex;
@@ -164,7 +206,20 @@ export default {
         background: rgb(201, 201, 201);
         cursor: pointer;
     }
-    .create_task_button{
-
+    .popup_task__type__title{
+        border: 1px solid black;
+        border-radius: 4px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .popup_task__developer__title{
+        border: 1px solid black;
+        border-radius: 4px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>

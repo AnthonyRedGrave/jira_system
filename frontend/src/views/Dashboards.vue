@@ -11,10 +11,9 @@
           <div class="project_description">
             <span>Тип {{project.type}}</span> 
             <span>Менеджер {{project.manager_name}}</span>
-            <div v-if="project.last_task.title">
-              <span>Новых задач</span>
-            </div>
-            <hr>
+          </div>
+          <hr>
+          <div class="action_buttons">
             <button type="button" @click="toDashboard(project.id)" class="btn btn-primary action-dashboard">
               Доска проекта
             </button>
@@ -22,6 +21,7 @@
               Страница проекта
             </button>
           </div>
+          
         </div>
       </div>
   </div>
@@ -80,18 +80,20 @@ export default {
   flex-direction: row;
 }
 
+.project_description{
+  height: 150px;
+}
+
 .project_block{
   width: 450px;
 }
 
-.action-dashboard{
-  margin-top: 15px;
-  margin-bottom: 15px;
+.action_buttons{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.action-detail{
-  margin-bottom: 15px;
-}
 
 .dashboards-vue{
   margin-top: 10px;

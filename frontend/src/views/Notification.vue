@@ -15,7 +15,7 @@
               <span class="notification_route_task">Перейти на доску проекта</span>
           </div>
       </div>
-      <button type="button" class="btn-close" aria-label="Close"></button>
+      <button type="button" @click="readNotification(notification)" class="btn-close" aria-label="Close"></button>
   </div>
 </template>
 
@@ -38,6 +38,11 @@ export default {
             }
         }
     },
+    methods:{
+        readNotification(notification){
+            this.$emit('readNotification', notification)
+        }
+    }
 }
 </script>
 

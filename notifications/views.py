@@ -1,3 +1,4 @@
+from asyncore import read
 from rest_framework.viewsets import ModelViewSet
 from notifications.serializers import NotificationSerializer
 from notifications.models import Notification
@@ -14,7 +15,7 @@ class NotificationViewSet(ModelViewSet):
 
     def get_queryset(self):
         type = self.request.query_params.get('type')
-        queryset = super().get_queryset().filter(user=self.request.user)
+        queryset = super().get_queryset().filter(user=self.request.user, read=False)
         if type:
             queryset = queryset.filter(type=type)
         return queryset
@@ -23,4 +24,5 @@ class NotificationViewSet(ModelViewSet):
     def read(self, request, pk=None):
         notification = self.get_object()
         notification.read = True
+        notification.save()
         return Response(status=status.HTTP_200_OK)

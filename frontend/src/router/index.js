@@ -8,6 +8,8 @@ import Roadmap from '../views/Roadmap.vue'
 import Login from '../views/Login.vue'
 import Notifications from '../views/Notifications.vue'
 import ProjectDetail from '../views/ProjectDetail.vue'
+import Chats from '../views/Chats.vue'
+import Chat from '../views/Chat.vue'
 import store from '@/store/index.js'
 
 
@@ -50,6 +52,24 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    beforeEnter: ifAuth,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/chats',
+    name: 'Chats',
+    component: Chats,
+    beforeEnter: ifAuth,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: Chat,
     beforeEnter: ifAuth,
     meta: {
         requiresAuth: true

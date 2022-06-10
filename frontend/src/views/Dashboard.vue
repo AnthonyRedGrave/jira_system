@@ -42,9 +42,18 @@
         {{epic.title}}
       </div>
     </div>
-    <div class="remove_filters">
-      <button class="btn btn-outline-secondary" @click="getDashboardData()" style="margin-bottom: 15px;">Сбросить фильтры</button>
+    <div class="actions__block">
+      <div class="btns_actions">
+        <button class="btn btn-outline-secondary" @click="getDashboardData()" style="margin-bottom: 15px;">Сбросить фильтры</button>
+        <button class="btn btn-outline-secondary" @click="showNotifications($event)" style="margin-bottom: 15px;">Уведомления</button>
+      </div>
+      <div class="notifications__panel">
+        <div v-for="notification in notifications" :key="notification.id" :class="getNotificationClass">
+          <Notification :notification="notification" @readNotification="readNotification"/>
+        </div>
+      </div>
     </div>
+    
     <div class="todo-container">
       <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
       <task-modal 
@@ -62,10 +71,12 @@
         <button v-if="index == 0" @click="addNewTask()" id="add_btn">Add Task</button>
         <button v-else id="add_btn" style="opacity: 0;cursor: default;">Add Task</button>
         <div v-for="task in dashboardData[status]" :style="{'border': `1px solid ${task.epic_color}`}" :key="task" class="todo" :id=task.id @dragstart="dragStart($event, task)" @dragend="dragEnd($event)" draggable="true" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
-          <span @click="showPopup(task)">{{task.title}}</span>
+          <div class="task_info">
+            <span @click="showPopup(task)">{{task.title}}</span>
+            <span class="task_developer__name">{{task.developer}}</span>
+          </div>
           <span v-if="task.developer == this.$store.state.username" class="close" @click="deleteTask(task.id)">&times;</span>
         </div>
-        
       </div>
     </div>
   </div>
@@ -75,11 +86,13 @@
 import useSideBar from '@/components/composables/useSideBar'
 import axios from 'axios'
 import TaskModal from './TaskModal.vue'
+import Notification from './Notification.vue'
 
 export default {
     name: 'Dashboard',
     components:{
-        TaskModal
+        TaskModal,
+        Notification
     },
     setup(){
 
@@ -108,6 +121,7 @@ export default {
         developer_name: null,
         found_developer_name: null,
         found_developers: [],
+        notifications: []
       }
     },
     created(){
@@ -115,6 +129,7 @@ export default {
       this.getProjectInfo()
       this.getDashboardData()
       this.getEpicTasks()
+      this.getNotifications()
     },
     computed:{
       canAddDeveloperToProject(){
@@ -147,6 +162,47 @@ export default {
                 .catch((err) => {
                 console.log(err);
                 })
+      },
+      getNotifications(){
+        axios({
+                method: "get",
+                url: `http://localhost:8000/api/notifications/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then((responce) => {
+                  this.notifications = responce.data                  
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
+      readNotification(notification){
+        axios({
+                method: "patch",
+                url: `http://localhost:8000/api/notifications/${notification.id}/read/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then(() => {
+                  this.getNotifications()               
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
+      showNotifications(element){
+        let notification_panel = element.path[1].nextElementSibling
+        if (notification_panel.style.maxHeight) {
+          notification_panel.style.maxHeight = null;
+        } else {
+          this.getNotifications()
+          notification_panel.style.maxHeight = notification_panel.scrollHeight + "px";
+        }
       },
       filterTasksByEpic(epic_title){
         axios({
@@ -223,7 +279,12 @@ export default {
                 },
                 })
                 .then((response) => {
-                  this.found_developers = response.data
+                  response.data.forEach((element)=>{
+                    if (!this.projectInfo.developers.includes(element.username)){
+                      this.found_developers = response.data
+                    }
+                  })
+                  
                 })  
                 .catch((err) => {
                     console.log(err);
@@ -440,11 +501,22 @@ export default {
     /* align-items: center; */
     box-sizing: border-box;
   }
+  .task_info{
+    display: flex;
+    flex-direction: column;
+  }
+  .task_developer__name{
+    font-size: 14px;
+  }
   .developer__title{
     cursor: pointer;
     border: 1px solid black;
     padding: 5px;
     border-radius: 3px;
+  }
+  .btns_actions{
+    display: flex;
+    justify-content: space-between;
   }
   .project_epic_tasks_block{
     display: flex;
@@ -458,6 +530,9 @@ export default {
     border: 1px solid black;
     border-radius: 4px;
     cursor: pointer;
+  }
+  .project_epic_task_block:hover{
+    background: rgb(226, 226, 226);
   }
   .epic_color_block{
     width: 15px;
@@ -476,6 +551,15 @@ export default {
   .type_task_title{
     margin-top: 20px;
     margin-bottom: 20px;
+    /* padding: 0 18px; */
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+  .notifications__panel{
+    /* margin-top: 20px;
+    margin-bottom: 20px; */
     /* padding: 0 18px; */
     background-color: white;
     max-height: 0;

@@ -21,12 +21,16 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="flush-headingTwo">
             <button class="accordion-button collapsed" style="font-size: 20px; padding-left: 2px;" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-              Как разработчика: {{developerProjects()}}
+              Как разработчика: {{developerProjects()}} 
             </button>
           </h2>
           <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
-              <span v-for="proj in developerProjectsList" :key="proj.id">
+              <span v-if="developerProjects() == 0">
+                <h2>У Вас нет проектов</h2>
+              </span>
+              
+              <span v-else v-for="proj in developerProjectsList" :key="proj.id">
                 Проект {{proj.title}}
               </span>
             </div>
@@ -42,7 +46,7 @@
       </span>
       <hr>
       <div class="projects_list">
-        <div v-for="project in projects" :key="project.id" class="project_block">
+        <div v-for="project in projects" :key="project.id" @click="toProjectDashboard(project.id)" class="project_block">
           <div class="project_title">
             Проект {{project.title}}
           </div>
@@ -50,12 +54,13 @@
           <div class="project_description">
             <span>Тип {{project.type}}</span> 
             <span>Менеджер {{project.manager_name}}</span>
-            <br>
-            <button type="button" class="btn btn-primary">
+          </div>
+          <hr>
+          <div class="notific_block">
+            <button type="button" class="btn btn-primary notific_butt">
               Уведомления <span class="badge bg-secondary">{{project.notifications.length}}</span>
             </button>
           </div>
-
         </div>
       </div>
     </div>
@@ -258,6 +263,9 @@ export default {
             console.log(err);
           });
       },
+      toProjectDashboard(project_id){
+        this.$router.push({ path: 'dashboard', query: {'id': project_id }})
+      }
       
     }
 
@@ -268,11 +276,12 @@ export default {
 .home{
   margin-left: 50px;
   width: 800px;
+  margin-top: 10px;
 }
 
 .your_work_span{
   font-size: 32px;
-
+  
 }
 
 .accordion_show_form{
@@ -358,6 +367,7 @@ export default {
   font-size: 22px;
   box-shadow: 0 0 5px rgba(0,0,0,0.5);
   min-width: 300px;
+  max-width: 350px;
   margin-right: 20px;
   margin-bottom: 20px;
   transition: background .35s;
@@ -371,8 +381,14 @@ export default {
 
 }
 
+.notific_block{
+  display: flex;
+}
+
 .project_description{
   display: flex;
   flex-direction: column;
+  height: 50px;
+  margin-bottom: 150px;
 }
 </style>
