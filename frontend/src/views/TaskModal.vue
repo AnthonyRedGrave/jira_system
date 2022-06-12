@@ -40,7 +40,7 @@
           <div class="popup_task__description">
               <h4>Описание:</h4> <p class="popup_task__description__change" @click="showChangeFormDescription()">Изменить</p>
               <textarea v-if="canShowChangeFormDescription" name="form__description" class="form-control" id="" cols="80" rows="5" :value='task_info.description'></textarea>
-              <button v-if="canShowChangeFormDescription" class='btn btn-outline-primary change_description_button' style="margin-top: 15px; margin-bottom: 15px" @click="changeDescription()">Изменить</button>
+              <button v-if="canShowChangeFormDescription" class='btn btn-outline-primary change_description_button' style="margin-top: 15px; margin-bottom: 15px" @click="changeDescription($event)">Изменить</button>
               <p v-if="!canShowChangeFormDescription">{{task_info.description}}</p>
           </div>
           <div class="popup_task__type" align='left'>
@@ -60,10 +60,6 @@
                  {{task_info.developer}}
              </div>
           </div>
-          
-          
-          
-          
       </div>
       <div class="popup__footer">
           <button class="btn btn-danger" @click="closePopup()">Закрыть</button>
@@ -104,15 +100,10 @@ export default {
             new_type_task: null,
             new_epic_task: null,
             new_developer: null,
-            canShowChangeFormDescription: false
+            canShowChangeFormDescription: false,
 
         }
     },
-    // computed:{
-    //     canShowChangeFormDescription(){
-
-    //     },
-    // },
     methods:{
         closePopup(){
             this.$emit('closePopup')
@@ -133,6 +124,12 @@ export default {
         showChangeFormDescription(){
             this.canShowChangeFormDescription = !this.canShowChangeFormDescription
 
+        },
+        changeDescription(element){
+            let data = {
+                description: element.target.previousElementSibling.value
+            }
+            this.$emit('changeTask', data, this.task_info.id)
         }
     }
 }

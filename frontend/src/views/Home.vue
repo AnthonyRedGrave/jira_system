@@ -12,7 +12,10 @@
           </h2>
           <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
-              <span v-for="proj in managerProjectsList" :key="proj.id">
+              <span v-if="managerProjects() == 0">
+                <h2>У Вас нет проектов</h2>
+              </span>
+              <span v-else v-for="proj in managerProjectsList" :key="proj.id">
                 Проект {{proj.title}}
               </span>
             </div>

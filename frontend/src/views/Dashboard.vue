@@ -55,7 +55,7 @@
     </div>
     
     <div class="todo-container">
-      <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup"></task-modal>
+      <task-modal v-if="isInfoPopupVisible" :task_info="task_info" @closePopup="closePopup" @changeTask="changeTask"></task-modal>
       <task-modal 
       v-if="isInfoPopupCreateTaskVisible" 
       :task_info="task_info" 
@@ -306,6 +306,26 @@ export default {
         axios({
           method: "post",
           url: 'http://localhost:8000/api/tasks/',
+          data: data,
+          headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+          })
+          .then((responce) =>{
+            console.log(responce.data)
+            this.isInfoPopupCreateTaskVisible = false
+            this.getDashboardData()
+          })
+          .catch((err) => {
+                console.log(err);
+                this.errorText = err.response.data.title[0]
+          });
+      },
+      changeTask(data, task_id){
+        axios({
+          method: "patch",
+          url: `http://localhost:8000/api/tasks/${task_id}/`,
           data: data,
           headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,

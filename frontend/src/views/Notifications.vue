@@ -18,7 +18,7 @@
                 <span>Менеджер проекта: {{project.manager_name}}</span>
             </div>
             <div class="notifications_list_box">
-                <Notification v-for="notification in project.notifications" :key="notification.id" :notification="notification"/>
+                <Notification v-for="notification in project.notifications" :key="notification.id" :notification="notification"  @readNotification="readNotification"/>
             </div>
           </div>
       </div>
@@ -27,7 +27,7 @@
                 <div class="project__box" >
                     <span>{{notification.project_title}}</span>
                 </div>
-                <Notification :notification="notification"/>
+                <Notification :notification="notification" @readNotification="readNotification"/>
             </div>
       </div>
   </div>
@@ -78,7 +78,23 @@ export default {
                     console.log(err);
                 });
 
-        }
+        },
+        readNotification(notification){
+        axios({
+                method: "patch",
+                url: `http://localhost:8000/api/notifications/${notification.id}/read/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then(() => {
+                  this.getNotifications()               
+                })
+                .catch((err) => {
+                console.log(err);
+                })
+      },
     }
 }
 </script>

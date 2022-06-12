@@ -59,8 +59,8 @@ class TaskViewSet(
             )
             create_notification(
                 new_task.project,
-                new_task.project.manager,
                 self.request.user,
+                new_task.project.manager,
                 Notification.NotificationType.message,
             )
         return new_task
@@ -71,25 +71,37 @@ class TaskViewSet(
         task.description = serializer.validated_data.get(
             "description", task.description
         )
-        task.type_task = serializer.validated_data.get("type_task", task.type_task)
+        message_value = "Редактирование задачи"
+
+        if serializer.validated_data.get("type_task"):
+            message_value = f"{task.type_task} => {serializer.validated_data['type_task']}"
+            task.type_task = serializer.validated_data['type_task']
+        else:
+            task.type_task = task.type_task
+
         task.epic_task = serializer.validated_data.get("epic_task", task.epic_task)
         task.implementer = serializer.validated_data.get(
             "implementer", task.implementer
         )
         task.save()
+        
         if serializer.validated_data.get("implementer"):
+            
             create_notification(
                 task.project,
-                serializer.validated_data.get("implementer"),
                 task.project.manager,
+                serializer.validated_data.get("implementer"),
                 Notification.NotificationType.change.value,
+                message_value
             )
         else:
+            
             create_notification(
                 task.project,
+                self.request.user,
                 task.project.manager,
-                serializer.validated_data.get("implementer"),
-                Notification.NotificationType.message,
+                Notification.NotificationType.change.value,
+                message_value
             )
         return Response(serializer.data)
 

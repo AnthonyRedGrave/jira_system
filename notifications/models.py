@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from projects.models import Project
 from tasks.models import Task
-
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -29,7 +28,7 @@ class Notification(models.Model):
     task = models.ForeignKey(Task, null=True, blank=True, on_delete=models.CASCADE, related_name='notificications')
 
     def __str__(self) -> str:
-        return f"{self.project} {self.user} {self.read}"
+        return f"{self.project} {self.user} {self.user_from} {self.read} {self.type}"
 
     class Meta:
         verbose_name = "Уведомление"

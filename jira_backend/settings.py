@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     "tasks",
     "projects",
     "notifications",
-    "users"
+    "users",
+    "chats"
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
