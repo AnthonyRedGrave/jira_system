@@ -21,7 +21,7 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
           <li><a class="dropdown-item" href="/chats">Мессенджер</a></li>
-          <li><a class="dropdown-item" href="#">Профиль</a></li>
+          <li><a class="dropdown-item" href="/profile">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#">Выйти</a></li>
         </ul>
@@ -46,7 +46,7 @@ export default {
     methods: {
         selectSideBarLine(line){
             this.$emit('selectSideBarLine', line.title)
-        }
+        },
     },
 }
 </script>

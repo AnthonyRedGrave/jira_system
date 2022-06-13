@@ -21,7 +21,7 @@
         <button class="btn btn-outline-secondary add_new_developer_btn" :disabled="canAddDeveloperToProject" @click="createChat()">Создать чат</button>
       </div>
       <div class="chats__list">
-        <chat-block :chat="chat" v-for="chat in chats" :key="chat.id"/>
+        <chat-block :chat="chat" @toChat='toChat' v-for="chat in chats" :key="chat.id"/>
       </div>
   </div>
 </template>
@@ -106,9 +106,9 @@ export default {
         this.found_developer_name = developer_name
         this.developer_name = developer_name
     },
-    // toChat(){
-    //   this.$router.push({ path: 'chats', query: {'id': id }})
-    // },
+    toChat(id){
+      this.$router.push({ path: 'chat', query: {'id': id }})
+    },
     createChat(){
       
       let data = {
@@ -126,6 +126,8 @@ export default {
           })
           .then(() =>{
             this.getChats()
+            this.found_developer_name = null
+            this.developer_name = null
           })
           .catch((err) => {
                 console.log(err);

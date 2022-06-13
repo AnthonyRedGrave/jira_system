@@ -11,6 +11,20 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class ProfileProjectSerializer(serializers.ModelSerializer):
+    manager_name = serializers.StringRelatedField(source="manager")
+    type = serializers.ChoiceField(
+        choices=Project.TypeProject, source="get_type_display"
+    )
+    class Meta:
+        model = Project
+        fields = (
+            "id",
+            "title",
+            "manager_name",
+            "type"
+        )
+
 class ProjectSerializer(serializers.ModelSerializer):
 
     manager_name = serializers.StringRelatedField(source="manager")

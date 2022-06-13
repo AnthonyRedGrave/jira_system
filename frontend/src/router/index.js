@@ -10,6 +10,7 @@ import Notifications from '../views/Notifications.vue'
 import ProjectDetail from '../views/ProjectDetail.vue'
 import Chats from '../views/Chats.vue'
 import Chat from '../views/Chat.vue'
+import Profile from '../views/Profile.vue'  
 import store from '@/store/index.js'
 
 
@@ -70,6 +71,15 @@ const routes = [
     path: '/chat',
     name: 'Chat',
     component: Chat,
+    beforeEnter: ifAuth,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
     beforeEnter: ifAuth,
     meta: {
         requiresAuth: true

@@ -7,12 +7,15 @@
             <div class="chat__title">
                 Чат с пользователем: {{secondMember.username}}
             </div>
-            <div class="chat__last_message">
-                {{chat.last_message}}
+            <div class="chat__last_message" v-if="chat.last_message.user_name == this.$store.state.username">
+                Вы: {{chat.last_message.content}}
+            </div>
+            <div class="chat__last_message" v-else>
+                {{chat.last_message.user_name}}: {{chat.last_message.content}}
             </div>
         </div>
         <div class="chat__action_buttons">
-            <button class='btn btn-outline-primary'>Перейти</button>
+            <button class='btn btn-outline-primary' @click="toChat(chat.id)">Перейти</button>
             <button class="btn btn-outline-secondary">Профиль</button>
         </div>
     </div>
@@ -43,6 +46,9 @@ export default {
             else{
                 this.secondMember = this.chat.user_1
             }
+        },
+        toChat(id){
+            this.$emit('toChat', id)
         }
     },
 }

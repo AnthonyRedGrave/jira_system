@@ -41,7 +41,7 @@ class ChatSerializer(serializers.ModelSerializer):
     def get_last_message(self, obj):
         last_message = Message.objects.filter(chat = obj).last()
         if last_message:
-            return last_message.content
+            return MessageSerializer(last_message).data
         return 'Будьте первым, кто напишет!'
 
 
