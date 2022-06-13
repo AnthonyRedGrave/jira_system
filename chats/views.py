@@ -9,7 +9,7 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 
 from .models import Chat, Message
-from .serializers import ChatSerializer, MessageSerializer
+from .serializers import ChatSerializer, MessageSerializer, CreateChatSerializer
 
 
 class MessageViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
@@ -31,13 +31,13 @@ class ChatViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     serializer_class = ChatSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods = ['get'])
-    def check_chat(self, request, pk=None):
-        print(self.request.query_params)
-        
-        serializer = ChatSerializer(data = self.request.query_params)
-        serializer.is_valid(raise_exception=True)
-        return Response({"Chat": "Redirected!"})
+    def get_queryset(self):
+        return super().get_queryset().filter(Q(member_1 = self.request.user) | Q(member_2 = self.request.user))
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateChatSerializer
+        return super().get_serializer_class()
 
     @action(detail=True, methods = ['get', 'post'])
     def messages(self, request, pk=None):

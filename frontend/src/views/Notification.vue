@@ -6,7 +6,7 @@
           <div v-if="notification.message" class="notificication_message_block">
               <hr>
               <span class="notificication_message_text">{{notification.message}}</span>
-              <span class="notification_route_chat" @click="toChat(notification.username_to, notification.username_from)">Перейти в чат с пользователем</span>
+              <span class="notification_route_chat" @click="toChat()">Перейти в чаты</span>
           </div>
           <div v-if="notification.task" class="notification_task">
               <span class="notification_task_text">Задача {{notification.task.title}}</span>
@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
     name: 'Notification',
     props:{
@@ -44,25 +43,8 @@ export default {
         readNotification(notification){
             this.$emit('readNotification', notification)
         },
-        toChat(username_to, username_from){
-            axios({
-                method: "get",
-                url: `http://localhost:8000/api/chats/`,
-                headers: {
-                Authorization: `Bearer ${this.$store.state.accessToken}`,
-                },
-                params:{
-                  member_1: username_to,
-                  member_2: username_from
-                },
-                credentials: "include",
-                })
-                .then((responce) => {
-                  this.dashboardData = responce.data                  
-                })
-                .catch((err) => {
-                console.log(err);
-                })
+        toChat(){
+            this.$router.push({ path: 'chats'})
         }
     }
 }

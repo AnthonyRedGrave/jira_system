@@ -5,6 +5,7 @@
       <div class="btn btn-outline-secondary add_type_btn" @click="showCreateTypeTaskForm($event)" style="margin-right: 15px;">Добавить тип для задач</div>
       
       <div class="btn btn-outline-secondary add_developer" @click="showAddDeveloper($event)" style="margin-right: 15px">Добавить разработчика</div>
+      
       <div class="type_task_title" style="margin-top: 0px;">
         <input class="form-control type_task_title_input" placeholder="Новый тип задач" v-model="newTypeTaskTitle" type="text">
         <button class="btn btn-outline-secondary" @click="createTypeTask()">Добавить</button>

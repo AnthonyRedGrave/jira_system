@@ -1,5 +1,7 @@
+import django
 from django.db import models
 from django.contrib.auth import get_user_model
+from django import utils
 
 User = get_user_model()
 
@@ -17,7 +19,7 @@ class Chat(models.Model):
     class Meta:
         verbose_name = 'Чат'
         verbose_name_plural = 'Чаты'
-        unique_together = (('member_1', 'member_2'), ('member_2', 'member_1'))
+
 
 
 class Message(models.Model):
@@ -26,12 +28,14 @@ class Message(models.Model):
     )
     content = models.TextField("Текст сообщения")
     chat = models.ForeignKey(Chat, verbose_name='Чат', on_delete=models.CASCADE, related_name='messages', blank=False)
+    time = models.DateTimeField(default=django.utils.timezone.now())
 
     def __str__(self):
-        return f"Сообщение от {self.user}"
+        return f"Сообщение от {self.user} {self.content}"
 
     class Meta:
         verbose_name = "Сообщение"
         verbose_name_plural = "Собщения"
+        # ordering = ['-time',]
 
     
