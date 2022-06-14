@@ -5,10 +5,28 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import mixins
 from rest_framework import status
-from .models import Project
-from .serializers import CreateUpdateProjectSerializer, ProjectSerializer
+from rest_framework.exceptions import APIException
+from .models import Project, RoadMap
+from .serializers import CreateUpdateProjectSerializer, ProjectSerializer, RoadMapSerializer
 from .services import get_tasks_board
 from notifications.services import create_notification
+from .services import create_roadmap
+
+
+class RoadMapViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
+    queryset = RoadMap.objects.all()
+    serializer_class = RoadMapSerializer
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=["get"])
+    def work(self, request, pk=None):
+        roadmaps = set(
+            roadmap
+            for roadmap in super().get_queryset().filter(project__manager=self.request.user)
+            | super().get_queryset().filter(project__developers__id__exact=self.request.user.id)
+        )
+        serializer = self.get_serializer(roadmaps, many=True)
+        return Response(serializer.data)
 
 
 class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
@@ -25,11 +43,13 @@ class ProjectViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyM
     def create(self, request):
         serializer = self.get_serializer_class()(data=request.data)
         if serializer.is_valid():
+
             project = Project.objects.create(title = serializer.validated_data['title'], type=serializer.validated_data['type'], manager = self.request.user)
             project.developers.set(serializer.validated_data['developers'])
             project.save()
             for dev in project.developers.all():
                 create_notification(project, dev, project.manager, Notification.NotificationType.invitation)
+                create_roadmap(project, serializer.validated_data['deadline'])
             return Response(ProjectSerializer(project, context={'request': request}).data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

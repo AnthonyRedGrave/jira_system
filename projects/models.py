@@ -35,4 +35,15 @@ class Project(models.Model):
         verbose_name_plural = "Проекты"
 
 
+class RoadMap(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='roadmap')
+    deadline = models.CharField('Дедлайн', max_length=150)
+
+    def __str__(self) -> str:
+        return f'RoadMap {self.project.title}'
+
+    class Meta:
+        verbose_name = 'РоадМэп'
+        verbose_name_plural = 'РоадМэпы'
+
 

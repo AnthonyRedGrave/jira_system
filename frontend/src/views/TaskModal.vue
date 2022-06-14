@@ -109,14 +109,27 @@ export default {
             this.$emit('closePopup')
         },
         createTask(){
-            let data = {
-                title: this.new_title,
-                description: this.new_description,
-                type_task: this.new_type_task,
-                epic_task: this.new_epic_task,
-                implementer: this.new_developer,
+            if (this.new_developer == null){
+                let data = {
+                    title: this.new_title,
+                    description: this.new_description,
+                    type_task: this.new_type_task,
+                    epic_task: this.new_epic_task,
+                }
+                this.$emit('createTask', data)
             }
-            this.$emit('createTask', data)
+            else{
+                let data = {
+                    title: this.new_title,
+                    description: this.new_description,
+                    type_task: this.new_type_task,
+                    epic_task: this.new_epic_task,
+                    implementer: this.new_developer,
+                }
+                this.$emit('createTask', data)
+            }
+            
+            
         },
         addDeveloper(dev){
             this.new_developer = dev

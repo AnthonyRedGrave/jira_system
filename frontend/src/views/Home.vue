@@ -68,7 +68,13 @@
       </div>
     </div>
     <div class="create_project_block">
+  
       <button type="button" class="btn btn-outline-primary accordion_show_form" @click="showCreateProjectForm($event)">Создать проект</button>
+      <div class="errors__block" style="margin-top:15px;" v-if="errorList">
+        <div v-for="error in errorList" :key="error" class="alert alert-danger" role="alert">
+          {{error[0]}}:{{error[1][0]}}
+        </div>
+      </div>
       <div class="panel">
         <form @submit.prevent="createProject">
           <div class="mb-3">
@@ -88,6 +94,10 @@
               <option value="design">Проектирование</option>
               <option value="personal">Личные</option>
             </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Дедлайн проекта</label>
+            <input class="form-control" v-model="deadline">
           </div>
           <div class="mb-3">
             <label class="form-label">Разработчики</label>
@@ -160,11 +170,13 @@ export default {
         titleProject: null,
         typeProject: null,
 
+        errorList: [],
 
         developers: [],
         developers_usernames:[],
         developers_list_username: [],
         developers_list: [],
+        deadline: null
       }
     },
     created(){
@@ -180,7 +192,8 @@ export default {
         let data = {
                   title: this.titleProject,
                   type: this.typeProject,
-                  developers: this.developers_usernames.join(",")
+                  developers: this.developers_usernames.join(","),
+                  deadline: this.deadline
             }
         axios({
               method: "post",
@@ -192,11 +205,15 @@ export default {
               })
               .then((response) => {
                   console.log(response.data)
-                  this.$router.push({ path: 'project-detail', query: {'id': response.data['id'] }})
+                  this.$router.push({ path: 'Dashboards'})
 
               })
               .catch((err) => {
-              console.log(err);
+              
+              Object.entries(err.response.data).forEach((element)=>{
+                this.errorList.push(element)
+
+              })
               });
       },
       seachDevelopers(){
@@ -239,7 +256,8 @@ export default {
         
       },
       showCreateProjectForm(element){
-        let panel = element.target.nextElementSibling
+        let panel = element.target.nextElementSibling.nextElementSibling
+        this.errorList = []
         if (panel.style.maxHeight) {
           panel.style.maxHeight = null;
         } else {

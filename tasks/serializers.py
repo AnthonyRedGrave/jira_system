@@ -1,9 +1,8 @@
 from projects.models import Project
 from rest_framework.validators import ValidationError
 from rest_framework import serializers
-from .models import Task, TypeTask, EpicTask
+from .models import Task, TypeTask, EpicTask, RoadMapTask
 from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 
@@ -19,6 +18,12 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ('id', 'title', 'type', 'epic', 'description', 'developer', 'project', 'epic_color')
 
+
+class RoadMapTaskSerializer(serializers.ModelSerializer):
+    task = TaskSerializer()
+    class Meta:
+        model = RoadMapTask
+        fields = '__all__'
 
 
 class CreatePartialUpdateTaskSerializer(serializers.Serializer):

@@ -1,4 +1,4 @@
-from projects.models import Project
+from projects.models import Project, RoadMap
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -63,3 +63,16 @@ class Task(models.Model):
     class Meta:
         verbose_name = "Задача"
         verbose_name_plural = "Задачи"
+
+
+class RoadMapTask(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, verbose_name='Задача', related_name='roadmap_tasks')
+    content = models.CharField('Описание', max_length=150)
+    roadmap = models.ForeignKey(RoadMap, on_delete=models.CASCADE, verbose_name='Роадмэп', related_name='roadmaptasks')
+
+    def __str__(self) -> str:
+        return f'RoadMapTask {self.task.title}'
+
+    class Meta:
+        verbose_name = 'РоадМэп задачи'
+        verbose_name_plural = 'РоадМэпы задач'

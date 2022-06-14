@@ -5,10 +5,11 @@ from tasks.serializers import (
     TaskSerializer,
     TypeTaskSerializer,
     EpicTaskSerializer,
-    CreateEpicTaskSerializer
+    CreateEpicTaskSerializer,
+    RoadMapTaskSerializer
 )
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from .models import EpicTask, Task, TypeTask
+from .models import EpicTask, RoadMapTask, Task, TypeTask
 from notifications.models import Notification
 from notifications.services import create_notification
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +17,13 @@ from rest_framework.response import Response
 from rest_framework import mixins
 from rest_framework.decorators import action
 from projects.services import get_tasks_board
+from .services import create_road_map_task
+
+
+class RoadMapTaskViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, ReadOnlyModelViewSet):
+    queryset = RoadMapTask.objects.all()
+    serializer_class = RoadMapTaskSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class TaskViewSet(
@@ -52,17 +60,23 @@ class TaskViewSet(
             create_notification(
                 new_task.project, serializer.validated_data.get("implementer"), new_task.project.manager, Notification.NotificationType.task
             )
+            content = f'{serializer.validated_data.get("implementer")} добавил задачу {new_task.title}'
         else:
-            
+
             new_task = Task.objects.create(
                 implementer=self.request.user, **serializer.validated_data
             )
-            create_notification(
-                new_task.project,
-                self.request.user,
-                new_task.project.manager,
-                Notification.NotificationType.message,
-            )
+            if self.request.user != new_task.project.manager:
+                create_notification(
+                    new_task.project,
+                    self.request.user,
+                    new_task.project.manager,
+                    Notification.NotificationType.message,
+                )
+            
+            content = f'{self.request.user} добавил задачу {new_task.title}'
+        roadmap = new_task.project.roadmap
+        create_road_map_task(new_task, content, roadmap)
         return new_task
 
     def perform_update(self, serializer):
@@ -76,6 +90,7 @@ class TaskViewSet(
         if serializer.validated_data.get("type_task"):
             message_value = f"{task.type_task} => {serializer.validated_data['type_task']}"
             task.type_task = serializer.validated_data['type_task']
+            
         else:
             task.type_task = task.type_task
 
@@ -95,14 +110,16 @@ class TaskViewSet(
                 message_value
             )
         else:
-            
-            create_notification(
-                task.project,
-                self.request.user,
-                task.project.manager,
-                Notification.NotificationType.change.value,
-                message_value
-            )
+            if self.request.user != task.project.manager:
+                create_notification(
+                    task.project,
+                    self.request.user,
+                    task.project.manager,
+                    Notification.NotificationType.change.value,
+                    message_value
+                )
+        roadmap = task.project.roadmap
+        create_road_map_task(task, message_value, roadmap)
         return Response(serializer.data)
 
 
