@@ -7,16 +7,17 @@
             <div class="chat__title">
                 Чат с пользователем: {{secondMember.username}}
             </div>
-            <div class="chat__last_message" v-if="chat.last_message.user_name == this.$store.state.username">
-                Вы: {{chat.last_message.content}}
+            <div class="chat__last_message" v-if="chat.last_message.content !== 'Будьте первым, кто напишет!'">
+               <span v-if="chat.last_message.user_name == this.$store.state.username">Вы: {{chat.last_message.content}}</span> 
+               <span v-else-if="chat.last_message.user_name !== this.$store.state.username">{{chat.last_message.user_name}}: {{chat.last_message.content}}</span>
             </div>
             <div class="chat__last_message" v-else>
-                {{chat.last_message.user_name}}: {{chat.last_message.content}}
+               <span>{{chat.last_message.content}}</span> 
             </div>
         </div>
         <div class="chat__action_buttons">
             <button class='btn btn-outline-primary' @click="toChat(chat.id)">Перейти</button>
-            <button class="btn btn-outline-secondary">Профиль</button>
+            <button class="btn btn-outline-secondary" @click="toProfile(secondMember.id)">Профиль</button>
         </div>
     </div>
 </template>
@@ -49,6 +50,9 @@ export default {
         },
         toChat(id){
             this.$emit('toChat', id)
+        },
+        toProfile(secondMember_id){
+            this.$router.push({ path: 'profiles', query: {'id': secondMember_id }})
         }
     },
 }

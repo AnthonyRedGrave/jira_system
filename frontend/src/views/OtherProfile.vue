@@ -1,7 +1,7 @@
 <template>
   <div class="profile__view">
     <div class="profile__title" style="margin-top: 15px;">
-        <h2>Ваш профиль</h2>
+        <h2>Профиль</h2>
         <hr>
     </div>
     <div class="profile__account">
@@ -36,18 +36,13 @@
           </div>
         </div>
         </div>
-        <h3 style="margin-bottom: 35px; margin-top: 15px;">Инструменты</h3>
-        <div class="profile__tools">
+        <h3 style="margin-bottom: 35px; margin-top: 15px;" v-if="profile.tools.length !== 0">Инструменты</h3>
+        <div class="profile__tools" v-if="profile.tools.length !== 0">
             <div v-for="tool in profile.tools" :key="tool" class="profile__tool">
                 <div class="profile__tool_title">
                     <h5>{{tool.title}}</h5> 
                 </div>
             </div>
-        </div>
-        <div class="profile__tools_form" style="margin-bottom: 35px;" v-if="profile.username == this.$store.state.username">
-            <h5>Добавьте инструменты</h5>
-            <input type="text" placeholder="Название" class="form-control" v-model="new_tool" style="width: 300px">
-            <button style="margin-top: 15px;" class="btn btn-outline-primary" @click="addTool()">Добавить</button>
         </div>
     </div>
   </div>
@@ -56,11 +51,10 @@
 <script>
 import axios from 'axios'
 export default {
-    name: 'Profile',
+    name: 'OtherProfile',
     data(){
         return{
-            profile: null,
-            new_tool: null
+            profile: null
         }
     },
     created(){
@@ -69,37 +63,15 @@ export default {
     methods:{
         getProfile(){
             axios
-                .get(`http://localhost:8000/api/users/profile/`, {
+                .get(`http://localhost:8000/api/users/${this.$route.query.id}/other_profile`, {
                 headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
                 })
                 .then((response) => {
-                    console.log(response.data)
                     this.profile = response.data
                 })
                 .catch((err) => {
                     console.log(err);
                 });
-        },
-        addTool(){
-            let data = {
-                title: this.new_tool
-            }
-            axios({
-              method: "post",
-              url: `http://localhost:8000/api/tools/`,
-              data: data,
-              headers: {
-              Authorization: `Bearer ${this.$store.state.accessToken}`,
-              },
-              })
-              .then(() => {
-                  this.getProfile()
-                  this.new_tool = null
-
-              })
-              .catch((err) => {
-              console.log(err);
-              });
         }
     }
 }

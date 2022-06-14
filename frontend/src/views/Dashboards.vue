@@ -17,9 +17,6 @@
             <button type="button" @click="toDashboard(project.id)" class="btn btn-primary action-dashboard">
               Доска проекта
             </button>
-            <button type="button" @click="toProjectPage(project.id)" class="btn btn-primary action-detail">
-              Страница проекта
-            </button>
           </div>
           
         </div>
@@ -49,9 +46,6 @@ export default {
           .catch((err) => {
             console.log(err);
           });
-      },
-      toProjectPage(id){
-        this.$router.push({ path: 'project-detail', query: {'id': id }})
       },
       toDashboard(id){
         this.$router.push({ path: 'dashboard', query: {'id': id }})

@@ -1,8 +1,10 @@
-from users.serializers import UserSerializer, ProfileSerializer
+from users.models import Tool
+from users.serializers import ToolSerializer, UserSerializer, ProfileSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 
 from django.contrib.auth import get_user_model
 
@@ -26,3 +28,22 @@ class UserViewSet(ReadOnlyModelViewSet):
         profile = request.user
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def other_profile(self, request, pk=None):
+        profile = self.get_object()
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+
+class ToolViewSet(CreateModelMixin, UpdateModelMixin, ReadOnlyModelViewSet):
+    queryset = Tool.objects.all()
+    serializer_class = ToolSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def perform_create(self, serializer):        
+        tool = Tool.objects.create(**serializer.validated_data)
+        self.request.user.tools.add(tool)
+        return 'Created!'
+
+    

@@ -7,10 +7,10 @@ import Backlog from '../views/Backlog.vue'
 import Roadmap from '../views/Roadmap.vue'
 import Login from '../views/Login.vue'
 import Notifications from '../views/Notifications.vue'
-import ProjectDetail from '../views/ProjectDetail.vue'
 import Chats from '../views/Chats.vue'
 import Chat from '../views/Chat.vue'
-import Profile from '../views/Profile.vue'  
+import Profile from '../views/Profile.vue'
+import OtherProfile from '../views/OtherProfile.vue'  
 import store from '@/store/index.js'
 
 
@@ -40,15 +40,7 @@ const routes = [
     name: 'login',
     component: Login
   },
-  {
-    path: '/project-detail',
-    name: 'ProjectDetail',
-    component: ProjectDetail,
-    beforeEnter: ifAuth,
-    meta:{
-      requiresAuth: true
-    }
-  },
+
   {
     path: '/dashboard',
     name: 'Dashboard',
@@ -80,6 +72,15 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: Profile,
+    beforeEnter: ifAuth,
+    meta: {
+        requiresAuth: true
+    }
+  },
+  {
+    path: '/profiles',
+    name: 'OtherProfile',
+    component: OtherProfile,
     beforeEnter: ifAuth,
     meta: {
         requiresAuth: true

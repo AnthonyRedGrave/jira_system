@@ -31,13 +31,6 @@ export default function useSideBar() {
                     },
                     {
                         id: 4,
-                        title: "Backlog",
-                        active: false,
-                        class: "nav-link text-white",
-                        route: "/backlog"
-                    },
-                    {
-                        id: 5,
                         title: "Roadmap",
                         active: false,
                         class: "nav-link text-white",

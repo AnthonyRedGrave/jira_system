@@ -10,9 +10,7 @@ export default function useDevelopersList() {
     onBeforeMount(init)
 
     const listPush = (element) =>{
-        console.log(this.developers_list.value)
         this.developers_list.value.push(element)
-        console.log(this.developers_list.value)
     }
 
     return {

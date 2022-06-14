@@ -1,4 +1,4 @@
-from users.views import UserViewSet
+from users.views import UserViewSet, ToolViewSet
 from rest_framework.routers import SimpleRouter
 from .views import EpicTaskViewSet, TaskViewSet, TypeTaskViewSet
 from projects.views import ProjectViewSet
@@ -15,6 +15,7 @@ router.register('notifications', NotificationViewSet)
 router.register('users', UserViewSet)
 router.register('chats', ChatViewSet)
 router.register('messages', MessageViewSet)
+router.register('tools', ToolViewSet)
 
 
 urlpatterns = router.urls
