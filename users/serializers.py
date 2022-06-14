@@ -16,6 +16,19 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name', 'last_login', 'image')
 
 
+class CreateUserSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
+    def validate_username(self, value):
+        user = User.objects.filter(username = value).last()
+        if user:
+            raise ValidationError("Пользователь с таким логином уже существует!")
+        return value
+
+
+
 class ToolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tool

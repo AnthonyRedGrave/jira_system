@@ -1,10 +1,12 @@
 from users.models import Tool
-from users.serializers import ToolSerializer, UserSerializer, ProfileSerializer
+from users.serializers import ToolSerializer, UserSerializer, ProfileSerializer, CreateUserSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
+from django.contrib.auth import authenticate
+
 
 from django.contrib.auth import get_user_model
 
@@ -28,6 +30,21 @@ class UserViewSet(ReadOnlyModelViewSet):
         profile = request.user
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
+
+   
+    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
+    def register(self, request, pk=None):
+        serializer = CreateUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = User(username = serializer.validated_data['username'], 
+            first_name=serializer.validated_data['first_name'], 
+            last_name = serializer.validated_data['last_name'])
+            user.save()
+            user.set_password(request.data['password'])
+            user.save()
+            if not user:
+                return Response('Error!')
+        return Response('Created!')
 
     @action(detail=True, methods=["get"])
     def other_profile(self, request, pk=None):

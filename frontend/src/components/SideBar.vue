@@ -14,7 +14,7 @@
           </li>
       </ul>
       <hr>
-      <div class="dropdown">
+      <div class="dropdown" v-if="this.$store.state.username !== null">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
           <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
           <strong>{{this.$store.state.username}}</strong>
@@ -23,7 +23,7 @@
           <li><a class="dropdown-item" href="/chats">Мессенджер</a></li>
           <li><a class="dropdown-item" href="/profile">Профиль</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#">Выйти</a></li>
+          <li><a class="dropdown-item" @click="logout()">Выйти</a></li>
         </ul>
       </div>
     </div>  
@@ -47,6 +47,13 @@ export default {
         selectSideBarLine(line){
             this.$emit('selectSideBarLine', line.title)
         },
+        logout(){
+            this.$store.state.accessToken = null
+            this.$store.state.username = null
+            localStorage.removeItem('token')
+            localStorage.removeItem('username')
+            this.$router.push({ path: 'login'})
+        }
     },
 }
 </script>

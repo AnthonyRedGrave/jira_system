@@ -10,7 +10,8 @@ import Notifications from '../views/Notifications.vue'
 import Chats from '../views/Chats.vue'
 import Chat from '../views/Chat.vue'
 import Profile from '../views/Profile.vue'
-import OtherProfile from '../views/OtherProfile.vue'  
+import OtherProfile from '../views/OtherProfile.vue'
+import Registration from '../views/Registration.vue'  
 import store from '@/store/index.js'
 
 
@@ -39,6 +40,11 @@ const routes = [
     path: '/login/',
     name: 'login',
     component: Login
+  },
+  {
+    path: '/register/',
+    name: 'Registration',
+    component: Registration
   },
 
   {

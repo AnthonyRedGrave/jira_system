@@ -15,8 +15,11 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Войти</button>
+                <a href="/register" style="margin-left: 30px;">Регистрация</a>
             </form>
+            
         </div>
+        
     </div>
 </template>
 
