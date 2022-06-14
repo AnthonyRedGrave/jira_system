@@ -1,5 +1,6 @@
 <template>
   <div class="registration__view">
+    <h2 style='margin-top: 15px; margin-left: 30px;'>Регистрация</h2>
     <div class="v-login">
             <div v-if="inCorrectAuth" class="alert alert-danger" role="alert">
                 Неверный логин!

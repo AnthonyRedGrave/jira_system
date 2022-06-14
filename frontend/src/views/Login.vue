@@ -1,5 +1,6 @@
 <template>
     <div class="login-wrapper">
+        <h2 style='margin-top: 15px; margin-left: 30px;'>Вход</h2>
         <div class="v-login">
             <div v-if="inCorrectAuth" class="alert alert-danger" role="alert">
                 Неправильные логин или пароль - проверьте правильность введенных вами данных!
